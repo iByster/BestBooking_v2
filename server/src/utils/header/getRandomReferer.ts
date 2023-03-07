@@ -10,6 +10,10 @@ const referes = [
     'https://www.clinicasalapalatului.ro/ce-este-medicina-interna-si-cand-sa-apelam-la-medicul-internist/',
     'https://infozon.evozon.com/wp-content/uploads/2022/07/Pachet-Expert-Complete-Adult_EVOZON-SYSTEMS_01.11.2021.pdf',
     'https://ib.btrl.ro/BT24/bfo/channel/web/loginframe.jsp?locale=RO&type=timeout',
+    'https://chat.openai.com/chat/9234f2e6-b2c1-422a-ab0d-231476cc1ce7',
+    'https://github.com/iByster/BestBooking/blob/main/scrapers-ts/src/worker-pool/Scraper.ts',
+    'https://www.netflix.com/search?q=zoo',
+    'https://www.youtube.com/'
 ];
 
 const rotateReferer = () => {

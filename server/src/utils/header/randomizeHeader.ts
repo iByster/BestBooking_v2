@@ -3,11 +3,11 @@ import rotateAcceptEncodings from "./getRandomAcceptEncoding";
 import rotateAcceptLanguage from "./getRandomAcceptLanguage";
 import rotateReferer from "./getRandomReferer";
 import rotateSecChUa from "./getRandomSecChUa";
-import rotateUserAgent from "./getRandomUserAgent"
+import { rotateUserAgentFromList } from "./getRandomUserAgent"
 
 const randomizeHeader = (header: BaseHeader) => {
     // Rotate base headers
-    header["User-Agent"] = rotateUserAgent();
+    header["User-Agent"] = rotateUserAgentFromList();
     header.Referer = rotateReferer();
     header["Accept-Encoding"] = rotateAcceptEncodings();
     header["Accept-Language"] = rotateAcceptLanguage();

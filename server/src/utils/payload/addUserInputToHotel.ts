@@ -7,5 +7,4 @@ export const addUserInputToHotel = (
     payload.children = children;
     payload.checkIn = checkIn;
     payload.checkOut = checkOut;
-
 };
