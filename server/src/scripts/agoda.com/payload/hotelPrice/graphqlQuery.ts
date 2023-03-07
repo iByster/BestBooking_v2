@@ -1,0 +1,1 @@
+export const graphqlQuery = 'query priceTrendSearch($PriceTrendSearchRequest: PriceTrendSearchRequest!) {\n  priceTrendSearch(PriceTrendSearchRequest: $PriceTrendSearchRequest) {\n    PriceTrendSearchDetails {\n      cityId\n      propertyId\n      prices {\n        checkIn\n        price\n        priceTrendType\n      }\n    }\n  }\n}\n'
