@@ -43,6 +43,8 @@ export interface QueueItem<T, N> {
 export interface BaseWorkerPayload {
     hotelId: string;
     userInput: IUserInputForCrawling;
+    cookie: string;
+    siteHotelId?: string;
 }
 
 export interface AirBnbWorkerPayload extends BaseWorkerPayload {}
@@ -78,9 +80,9 @@ export type WorkerResponse<T> = {
 }
 
 export interface BaseWorkerResponse {
-    hotelData: Hotel;
-    hotelPricesData: HotelPrice[];
-    locationData: Location;
+    hotelData?: IHotel;
+    hotelPricesData: IHotelPrice[];
+    locationData?: ILocation;
 }
 
 export type BasicHTTPMethods = 'GET' | 'POST' | 'DELETE' | 'PUT';
@@ -106,4 +108,58 @@ export class ErrorRequestFetch extends Error {
         super(message);
         this.name = "ErrorRequestFetch";
     }
+}
+
+export interface IBaseEntity {
+    id: string;
+    createdAt?: Date;
+    updatedAt?: Date;
+}
+
+export interface IHotel extends IBaseEntity {
+    siteOrigin: string;
+    siteHotelId: string;
+    hotelName: string;
+    link: string;
+    description: Nullable<string>;
+    rating: Nullable<{ score: number, maxScore: number }>;
+    reviews: Nullable<string>;
+    imageLink: Nullable<string>;
+    wifi: Nullable<boolean>;
+    kitchen: Nullable<boolean>;
+    washer: Nullable<boolean>;
+    bayView: Nullable<boolean>;
+    mountainView: Nullable<boolean>;
+    freeParking: Nullable<boolean>;
+    balcony: Nullable<boolean>;
+    bathroom: Nullable<boolean>;
+    airConditioning: Nullable<boolean>;
+    coffeMachine: Nullable<boolean>;
+}
+
+
+export interface ILocation extends IBaseEntity {
+    hotelId: string;
+    locationName: string;
+    lat: Nullable<number>;
+    lon: Nullable<number>;
+    country: Nullable<string>;
+    area: Nullable<string>;
+    address: Nullable<string>;
+    region: Nullable<string>;
+}
+
+export interface IHotelPrice extends IBaseEntity {
+    hotelId: string;
+    pricePerNight: Nullable<number>;
+    pricePerRoom: Nullable<number>;
+    cleaningFee: Nullable<number>;
+    currency: Nullable<string>;
+    serviceFee: Nullable<number>;
+    date: Nullable<Date>;
+    from: Nullable<Date>;
+    to: Nullable<Date>;
+    taxes: Nullable<number>;
+    description: Nullable<string | null>;
+    rooms: IRoom[];
 }
