@@ -9,7 +9,7 @@ if (isMainThread) {
 }
 
 parentPort.on('message', async (payload: DirectBookingWorkerPayload) => {
-    const { hotelId, userInput, hotelUrl } = payload;
+    const { hotelId, userInput, hotelUrl, cookie, siteHotelId } = payload;
     console.log('entered worker with user input: ', userInput);
 
     let response: DirectBookingWorkerResponse = { data: null, error: null };
@@ -17,7 +17,7 @@ parentPort.on('message', async (payload: DirectBookingWorkerPayload) => {
     await randomDelay(10000, 20000);
     
     try {
-        const workerResponse = await scrapeHotelByIdAndUserInput(hotelId, userInput, hotelUrl);
+        const workerResponse = await scrapeHotelByIdAndUserInput(hotelId, userInput, hotelUrl, cookie, siteHotelId);
         response = workerResponse;
     } catch (err) {
         if (err instanceof Error) {

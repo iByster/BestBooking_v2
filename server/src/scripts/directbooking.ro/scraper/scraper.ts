@@ -1,18 +1,15 @@
-import { DirectBookingWorkerResponse, ErrorRequestFetch, IUserInputForCrawling } from '../../../types/types';
 import { JSDOM } from 'jsdom';
 import { v4 as uuidv4 } from 'uuid';
-import { Hotel } from '../../../entities/Hotel';
-import { HotelPrice } from '../../../entities/HotelPrice';
-import { Location } from '../../../entities/Location';
 import RequestScraper from '../../../scrapers/RequestScraper';
+import { DirectBookingWorkerResponse, ErrorRequestFetch, IHotel, IHotelPrice, ILocation, IUserInputForCrawling } from '../../../types/types';
 import { getDateDifferenceInDays } from '../../../utils/parse/parseUtils';
-import { constructQueryStringPayload } from '../payload/payload';
 import { directBookingHeaders } from '../headers/headers';
+import { constructQueryStringPayload } from '../payload/payload';
 
 const siteOrigin = 'https://www.directbooking.ro';
 const apiEndpoint = `${siteOrigin}/ajax.ashx`;
 
-export const parsePriceData = (priceHTML: any, userInput: IUserInputForCrawling, hotelId: string): { hotelPricesData: HotelPrice[] } => {
+export const parsePriceData = (priceHTML: any, userInput: IUserInputForCrawling, hotelId: string): { hotelPricesData: IHotelPrice[] } => {
     const dom = new JSDOM(priceHTML);
     const document = dom.window.document;
 
@@ -24,7 +21,7 @@ export const parsePriceData = (priceHTML: any, userInput: IUserInputForCrawling,
     const cleaningFee = null;
     const taxes = null;
 
-    const hotelPricesData: HotelPrice[] = [];
+    const hotelPricesData: IHotelPrice[] = [];
 
     const rooms = document.querySelectorAll('.room');
 
@@ -57,7 +54,7 @@ export const parsePriceData = (priceHTML: any, userInput: IUserInputForCrawling,
     }
 }
 
-export const parseDetailsAndLocationData = (detailsHTML: string): { hotelData: Hotel, locationData: Location } => {
+export const parseDetailsAndLocationData = (detailsHTML: string): { hotelData: IHotel, locationData: ILocation } => {
     const hotelId = uuidv4();
     
     const dom = new JSDOM(detailsHTML);
@@ -126,7 +123,7 @@ export const parseDetailsAndLocationData = (detailsHTML: string): { hotelData: H
     }
 }
 
-export const fetchHotelPrices = async (hotelId: string, userInput: IUserInputForCrawling) => {
+export const fetchHotelPrices = async (hotelId: string, userInput: IUserInputForCrawling, cookie: string) => {
     const requestScraper = new RequestScraper(siteOrigin);
 
     try {
@@ -136,7 +133,10 @@ export const fetchHotelPrices = async (hotelId: string, userInput: IUserInputFor
             cookie: false,
             proxy: false,
             method: 'GET',
-            specificHeaders: directBookingHeaders,
+            specificHeaders: {
+                ...directBookingHeaders,
+                cookie
+            },
             includeRotatingHeaders: true,
         });
 
@@ -160,7 +160,7 @@ export const fetchHotelPrices = async (hotelId: string, userInput: IUserInputFor
     }
 }
 
-export const fetchHotelAndLocationData = async (hotelUrl: string) => {
+export const fetchHotelAndLocationData = async (hotelUrl: string, cookie: string) => {
     const requestScraper = new RequestScraper(siteOrigin);
 
     try {
@@ -170,7 +170,10 @@ export const fetchHotelAndLocationData = async (hotelUrl: string) => {
             cookie: false,
             proxy: false,
             method: 'GET',
-            specificHeaders: directBookingHeaders,
+            specificHeaders: {
+                ...directBookingHeaders,
+                cookie
+            },
             includeRotatingHeaders: true,
         });
 
@@ -200,20 +203,32 @@ const preparePayload = (id: string, userInput: IUserInputForCrawling) => {
     return endpoint;
 }
 
-export const scrapeHotelByIdAndUserInput = async (id: string, userInput: IUserInputForCrawling, hotelUrl: string): Promise<DirectBookingWorkerResponse> => {
+export const scrapeHotelByIdAndUserInput = async (id: string, userInput: IUserInputForCrawling, hotelUrl: string, cookie: string, siteHotelId?: string): Promise<DirectBookingWorkerResponse> => {
     try {
-        const hotelAndLocationDataRaw = await fetchHotelAndLocationData(hotelUrl);
-        const { hotelData, locationData } = parseDetailsAndLocationData(hotelAndLocationDataRaw);
-        const hotelPricesDataRaw = await fetchHotelPrices(id, userInput);
-        const { hotelPricesData } = parsePriceData(hotelPricesDataRaw, userInput, hotelData.id);
+        if (!siteHotelId) {
+            const hotelAndLocationDataRaw = await fetchHotelAndLocationData(hotelUrl, cookie);
+            const { hotelData, locationData } = parseDetailsAndLocationData(hotelAndLocationDataRaw);
+            const hotelPricesDataRaw = await fetchHotelPrices(id, userInput, cookie);
+            const { hotelPricesData } = parsePriceData(hotelPricesDataRaw, userInput, hotelData.id);
 
-        return {
-            data: {
-                hotelData,
-                locationData,
-                hotelPricesData,
-            },
-            error: null
+            return {
+                data: {
+                    hotelData,
+                    locationData,
+                    hotelPricesData,
+                },
+                error: null
+            }
+        } else {
+            const hotelPricesDataRaw = await fetchHotelPrices(id, userInput, cookie);
+            const { hotelPricesData } = parsePriceData(hotelPricesDataRaw, userInput, siteHotelId);
+
+            return {
+                data: {
+                    hotelPricesData,
+                },
+                error: null
+            }
         }
     } catch(err: any) {
         if (err instanceof Error) {

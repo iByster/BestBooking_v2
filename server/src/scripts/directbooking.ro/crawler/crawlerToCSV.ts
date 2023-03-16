@@ -29,7 +29,7 @@ const extractHotelIdFromUrl = (url: string) => {
 }
 
 // crawl xml sitemaps and scrapes the desired url via request
-export const crawlXMLFile = async (userInput?: IUserInputForCrawling) => {
+export const crawlXMLFile = async (cookie: string, userInput?: IUserInputForCrawling) => {
     // dowload sitemap
     const sitemap = await SitemapCrawler.fetchXmlFile(sitemapURL);
     // filter sitemap
@@ -73,7 +73,8 @@ export const crawlXMLFile = async (userInput?: IUserInputForCrawling) => {
             let res = await pool.run(() => ({
                 hotelId,
                 userInput: userInput || getRandomUserInput({ withChildren: false }),
-                hotelUrl: url
+                hotelUrl: url,
+                cookie,
             }));
 
             const { data, error } = res;
@@ -103,7 +104,7 @@ export const crawlXMLFile = async (userInput?: IUserInputForCrawling) => {
                     locationDataChunck = '';
                 }
 
-                console.log(`Hotel with id: ${hotelData.siteHotelId} scraped`);
+                console.log(`Hotel with id: ${hotelData?.siteHotelId} scraped`);
             } else {
                 console.log(error?.message);
                 appendToCSVFile(path.join(__dirname, '..', 'output', 'airBnbErrorData.csv'), jsObjectToCsvRecord({ errorMsg: error?.message }, ['errorMsg']));
