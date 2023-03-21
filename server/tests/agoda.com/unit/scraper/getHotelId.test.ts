@@ -2,6 +2,7 @@ import chai, { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { describe } from 'mocha';
 import { getHotelId } from '../../../../src/scripts/agoda.com/scraper/scraper';
+// import CookieManager from '../../../../src/utils/cookie/CookieManager';
 import delay from '../../../../src/utils/scrape/delay';
 chai.use(chaiAsPromised);
 
@@ -10,9 +11,10 @@ declare global {
       initParams: any;
     }
   }
+// const BASE_URL = 'https://www.agoda.com/';
 
 describe('agoda.com getHotelId', function () {
-    before(function() {
+    before(async function() {
         this.hotelUrl1 = 'https://www.agoda.com/en-gb/hotel-alpen-residence/hotel/ehrwald-at.html';
         this.hotelUrl2 = 'https://www.agoda.com/en-gb/hotel-dann-carlton-medellin/hotel/medellin-co.html';
         this.hotelUrl3 = 'https://www.agoda.com/en-gb/drury-plaza-st-louis-at-the-arch/hotel/st-louis-mo-us.html';
@@ -20,6 +22,9 @@ describe('agoda.com getHotelId', function () {
         this.hotelUrl5 = 'https://www.agoda.com/en-gb/harris-hotel-sentraland/hotel/semarang-id.html';
         this.hotelUrl6 = 'https://www.agoda.com/en-gb/coral-cove-beach-resort-h31479548/hotel/varkala-in.html';
         this.hotelUrl7 = 'https://www.agoda.com/en-gb/unexisting-hotel/hotel/varkala-in.html';
+
+        // const cookieManager = new CookieManager(BASE_URL);
+        // this.cookie = await cookieManager.fetchCookie({ proxy: false });
     })
 
     it('should return hotel id for first hotel url', async function() {

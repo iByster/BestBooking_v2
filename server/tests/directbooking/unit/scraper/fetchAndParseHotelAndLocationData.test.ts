@@ -2,9 +2,12 @@ import chai, { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { describe } from 'mocha';
 import { fetchHotelAndLocationData, parseDetailsAndLocationData } from '../../../../src/scripts/directbooking.ro/scraper/scraper';
+import CookieManager from '../../../../src/utils/cookie/CookieManager';
 import getRandomUserInput from '../../../../src/utils/payload/randomUserInput';
 import delay from '../../../../src/utils/scrape/delay';
 chai.use(chaiAsPromised);
+
+const BASE_URL = 'https://www.directbooking.ro/';
 
 declare global {
     interface Window {
@@ -20,7 +23,7 @@ describe('directbooking.ro fetchHotelAndLocationData and parseHotelAndLocationDa
     let response5: any = null;
     let response6: any = null;
 
-    before(function() {
+    before(async function() {
         this.siteHotelId1 = '5936';
         this.siteHotelId2 = '5034289';
         this.siteHotelId3 = '5655';
@@ -50,41 +53,44 @@ describe('directbooking.ro fetchHotelAndLocationData and parseHotelAndLocationDa
                 max: 2,
             },
         });
+
+        const cookieManager = new CookieManager(BASE_URL);
+        this.cookie = await cookieManager.fetchCookie({ proxy: false });
     })
 
     context('fetchHotelAndLocationData', function() {
         it('should successfully fetch hotel and location data for hotelUrl1', async function() {
-            response1 = await fetchHotelAndLocationData(this.hotelUrl1);
+            response1 = await fetchHotelAndLocationData(this.hotelUrl1, this.cookie);
             await delay(1000);
             expect(response1).to.be.not.null;
         });
 
         it('should successfully fetch hotel and location data for hotelUrl2', async function() {
-            response2 = await fetchHotelAndLocationData(this.hotelUrl2);
+            response2 = await fetchHotelAndLocationData(this.hotelUrl2, this.cookie);
             await delay(1000);
             expect(response2).to.be.not.null;
         });
 
         it('should successfully fetch hotel and location data for hotelUrl3', async function() {
-            response3 = await fetchHotelAndLocationData(this.hotelUrl3);
+            response3 = await fetchHotelAndLocationData(this.hotelUrl3, this.cookie);
             await delay(1000);
             expect(response3).to.be.not.null;
         });
 
         it('should successfully fetch hotel and location data for hotelUrl4', async function() {
-            response4 = await fetchHotelAndLocationData(this.hotelUrl4);
+            response4 = await fetchHotelAndLocationData(this.hotelUrl4, this.cookie);
             await delay(1000);
             expect(response4).to.be.not.null;
         });
 
         it('should successfully fetch hotel and location data for hotelUrl5', async function() {
-            response5 = await fetchHotelAndLocationData(this.hotelUrl5);
+            response5 = await fetchHotelAndLocationData(this.hotelUrl5, this.cookie);
             await delay(1000);
             expect(response5).to.be.not.null;
         });
 
         it('should successfully fetch hotel and location data for hotelUrl6', async function() {
-            response6 = fetchHotelAndLocationData(this.hotelUrl6);
+            response6 = fetchHotelAndLocationData(this.hotelUrl6, this.cookie);
             await delay(1000);
             await expect(response6).to.be.rejectedWith(/Request failed with status code 404/);
         });
@@ -163,7 +169,7 @@ describe('directbooking.ro fetchHotelAndLocationData and parseHotelAndLocationDa
             const parsedData = parseDetailsAndLocationData(response3);
             const { hotelData, locationData } = parsedData;
 
-            expect(hotelData.hotelName).to.be.eq('Nieuw Slotania');
+            expect(hotelData.hotelName).to.be.eq('Xo Hotels Infinity Amsterdam Ex Nieuw Slotania');
             expect(hotelData.siteOrigin).to.be.eq('https://www.directbooking.ro');
             expect(hotelData.siteHotelId).to.be.eq(this.siteHotelId3);
             expect(hotelData.description).to.be.eq('Situat într-un cartier rezidential cu frunze 2 stele Nieuw Slotania Hotel este doar o călătorie de 20 minute cu tramvaiul la Dam Square, unde oaspeţii pot vizita muzee, bucuraţi-vă de cumpărături sau să exploreze străzile pitoreşti mici şi canale.  ...');

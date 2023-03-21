@@ -14,14 +14,12 @@ class CookieManager {
     private browser: Nullable<Browser>;
     private url: string;
     private page: Nullable<Page>;
-    // private acceptCookieSelector?: string;
 
     constructor(url: string) {
         this.cookie = null;
         this.browser = null;
         this.page = null;
         this.url = url
-        // this.acceptCookieSelector = acceptCookieSelector;
     }
 
     // getter
@@ -34,18 +32,19 @@ class CookieManager {
         this.cookie = cookie;
     }
 
-    async fetchCookie() {
+    async fetchCookie(ops: { proxy: boolean }) {
         const attemptCount = 3;
 
-        console.log(process.env.STORM_PROXIES_GATEWAY_HOST);
-
         try {
+            const args = ['--window-size=1920,1080'];
+            
+            if (ops.proxy) {
+                args.push(`--proxy-server=http://${process.env.STORM_PROXIES_GATEWAY_HOST}:${process.env.STORM_PROXIES_GATEWAY_PORT}`);
+            }
+
             this.browser = await puppeteerXtra.launch({
-                args: [
-                    '--window-size=1920,1080',
-                    // `--proxy-server=http://${process.env.STORM_PROXIES_GATEWAY_HOST}:${process.env.STORM_PROXIES_GATEWAY_PORT}`
-                ],
-                headless: false,
+                args,
+                headless: true,
                 executablePath: executablePath(),
             });
 

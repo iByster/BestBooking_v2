@@ -4,7 +4,10 @@ import { describe } from 'mocha';
 import { fetchHotelPrices, parsePriceData } from '../../../../src/scripts/directbooking.ro/scraper/scraper';
 import delay from '../../../../src/utils/scrape/delay';
 import getRandomUserInput from '../../../../src/utils/payload/randomUserInput';
+import CookieManager from '../../../../src/utils/cookie/CookieManager';
 chai.use(chaiAsPromised);
+
+const BASE_URL = 'https://www.directbooking.ro/';
 
 describe('directbooking.ro fetchHotelPrices and parsePriceData', function () {
     let response1: any = null;
@@ -14,7 +17,7 @@ describe('directbooking.ro fetchHotelPrices and parsePriceData', function () {
     let response5: any = null;
     let response6: any = null;
 
-    before(function() {
+    before(async function() {
         this.siteHotelId1 = '5936';
         this.siteHotelId2 = '5034289';
         this.siteHotelId3 = '5655';
@@ -44,41 +47,44 @@ describe('directbooking.ro fetchHotelPrices and parsePriceData', function () {
                 max: 2,
             },
         });
+
+        const cookieManager = new CookieManager(BASE_URL);
+        this.cookie = await cookieManager.fetchCookie({ proxy: false });
     })
 
     context('fetchHotelPrices', function() {
         it('should successfully fetch price data for siteHotelId1 with userInput1', async function() {
-            response1 = await fetchHotelPrices(this.siteHotelId1, this.userInput1);
+            response1 = await fetchHotelPrices(this.siteHotelId1, this.userInput1, this.cookie);
             await delay(1000);
             expect(response1).to.be.not.null;
         });
 
         it('should successfully fetch price data for siteHotelId2 with userInput2', async function() {
-            response2 = await fetchHotelPrices(this.siteHotelId2, this.userInput2);
+            response2 = await fetchHotelPrices(this.siteHotelId2, this.userInput2, this.cookie);
             await delay(1000);
             expect(response2).to.be.not.null;
         });
 
         it('should successfully fetch price data for siteHotelId3 with userInput1', async function() {
-            response3 = await fetchHotelPrices(this.siteHotelId3, this.userInput1);
+            response3 = await fetchHotelPrices(this.siteHotelId3, this.userInput1, this.cookie);
             await delay(1000);
             expect(response3).to.be.not.null;
         });
 
         it('should successfully fetch price data for siteHotelId4 with userInput2', async function() {
-            response4 = await fetchHotelPrices(this.siteHotelId4, this.userInput2);
+            response4 = await fetchHotelPrices(this.siteHotelId4, this.userInput2, this.cookie);
             await delay(1000);
             expect(response4).to.be.not.null;
         });
 
         it('should successfully fetch price data for siteHotelId5 with userInput1', async function() {
-            response5 = await fetchHotelPrices(this.siteHotelId5, this.userInput1);
+            response5 = await fetchHotelPrices(this.siteHotelId5, this.userInput1, this.cookie);
             await delay(1000);
             expect(response5).to.be.not.null;
         });
 
         it('should successfully fetch price data for siteHotelId6 with userInput2', async function() {
-            response6 = await fetchHotelPrices(this.siteHotelId6, this.userInput2);
+            response6 = await fetchHotelPrices(this.siteHotelId6, this.userInput2, this.cookie);
             await delay(1000);
             expect(response6).to.contain('alert-error');
         });

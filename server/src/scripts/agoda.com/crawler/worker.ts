@@ -1,3 +1,5 @@
+import HotelService from "../../../services/HotelService";
+import DropPoint from "../../../type-orm.config";
 import { AgodaComWorkerPayload, AgodaComWorkerResponse } from "../../../types/types";
 import { randomDelay } from "../../../utils/scrape/randomDelay";
 import { scrapeHotelByUserInput } from "../scraper/scraper";
@@ -8,15 +10,19 @@ if (isMainThread) {
 }
 
 parentPort.on('message', async (payload: AgodaComWorkerPayload) => {
-    const { userInput, hotelUrl } = payload;
+    const { userInput, hotelUrl, cookie, existingHotel } = payload;
     console.log('entered worker with user input: ', userInput);
+
+    if (existingHotel) {
+        console.log(`Scraping existing hotel: ${hotelUrl}`);
+    }
 
     let response: AgodaComWorkerResponse = { data: null, error: null };
     
     await randomDelay(30000, 55000);
     
     try {
-        const workerResponse = await scrapeHotelByUserInput(hotelUrl, userInput);
+        const workerResponse = await scrapeHotelByUserInput(hotelUrl, userInput, cookie, existingHotel);
         response = workerResponse;
     } catch (err) {
         if (err instanceof Error) {

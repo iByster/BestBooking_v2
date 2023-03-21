@@ -1,32 +1,15 @@
 {
-    "extends": "standard",
-    "env": {
-      "mocha": true
-    },
-    "parserOptions": {
-      "ecmaVersion": "latest"
-    },
-    "rules": {
-      "comma-dangle": 0,
-      "semi": [2, "always"],
-      "no-extra-semi": 2,
-      "semi-spacing": [
-        2,
-        {
-          "before": false,
-          "after": true
-        }
-      ],
-      "space-before-function-paren": 0,
-      "no-return-await": 1
-    },
-    "overrides": [
-      {
-        "files": "*.test.js",
-        "rules": {
-          "no-unused-expressions": "off"
-        }
-      }
-    ]
-  }
-  
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "plugins": [
+    "@typescript-eslint"
+  ],
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:shopify/typescript",
+    "plugin:shopify/typescript-type-checking",
+    "plugin:shopify/esnext"
+  ]
+}

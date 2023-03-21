@@ -6,12 +6,15 @@ import getRandomUserInput from '../../../../src/utils/payload/randomUserInput';
 import delay from '../../../../src/utils/scrape/delay';
 chai.use(chaiAsPromised);
 import fs from 'fs';
+import CookieManager from '../../../../src/utils/cookie/CookieManager';
 
 declare global {
     interface Window {
       booking: any;
     }
   }
+
+const BASE_URL = 'https://www.booking.com/';
 
 describe('booking.com fetchData and parseData', function () {
     let response1: any = null;
@@ -21,7 +24,7 @@ describe('booking.com fetchData and parseData', function () {
     let response5: any = null;
     let response6: any = null;
 
-    before(function() {
+    before(async function() {
         this.siteHotelId1 = '7723912';
         this.siteHotelId2 = '8156710';
         this.siteHotelId3 = '9261924';
@@ -39,41 +42,44 @@ describe('booking.com fetchData and parseData', function () {
 
         this.userInput1 = getRandomUserInput({});
         this.userInput2 = getRandomUserInput({});
+
+        const cookieManager = new CookieManager(BASE_URL);
+        this.cookie = await cookieManager.fetchCookie({ proxy: false });
     })
 
     context('fetchHotelAndLocationData', function() {
         it('should successfully fetch hotel and location data for siteHotelId1', async function() {
-            response1 = await fetchData(this.siteHotelId1, this.userInput1, this.hotelUrl1);
+            response1 = await fetchData(this.siteHotelId1, this.userInput1, this.hotelUrl1, this.cookie);
             await delay(1000);
             expect(response1).to.be.not.null;
         });
 
         it('should successfully fetch hotel and location data for siteHotelId2', async function() {
-            response2 = await fetchData(this.siteHotelId2, this.userInput2, this.hotelUrl2);
+            response2 = await fetchData(this.siteHotelId2, this.userInput2, this.hotelUrl2, this.cookie);
             await delay(1000);
             expect(response2).to.be.not.null;
         });
 
         it('should successfully fetch hotel and location data for siteHotelId3', async function() {
-            response3 = await fetchData(this.siteHotelId3, this.userInput1, this.hotelUrl3);
+            response3 = await fetchData(this.siteHotelId3, this.userInput1, this.hotelUrl3, this.cookie);
             await delay(1000);
             expect(response3).to.be.not.null;
         });
 
         it('should successfully fetch hotel and location data for siteHotelId4', async function() {
-            response4 = await fetchData(this.siteHotelId4, this.userInput2, this.hotelUrl4);
+            response4 = await fetchData(this.siteHotelId4, this.userInput2, this.hotelUrl4, this.cookie);
             await delay(1000);
             expect(response4).to.be.not.null;
         });
 
         it('should successfully fetch hotel and location data for siteHotelId5', async function() {
-            response5 = await fetchData(this.siteHotelId5, this.userInput1, this.hotelUrl5);
+            response5 = await fetchData(this.siteHotelId5, this.userInput1, this.hotelUrl5, this.cookie);
             await delay(1000);
             expect(response5).to.be.not.null;
         });
 
         it('should successfully fetch hotel and location data for siteHotelId6', async function() {
-            response6 = fetchData(this.siteHotelId6, this.userInput1, this.hotelUrl6);
+            response6 = fetchData(this.siteHotelId6, this.userInput1, this.hotelUrl6, this.cookie);
             await delay(1000);
             await expect(response6).to.be.rejectedWith(/fetchData: Request failed with status code 404/);
         });

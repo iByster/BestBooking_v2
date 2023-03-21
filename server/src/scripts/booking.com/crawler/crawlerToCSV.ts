@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import SitemapCrawler from '../../../crawlers/SitemapCrawler';
-import { DirectBookingWorkerPayload, DirectBookingWorkerResponse, IUserInputForCrawling } from '../../../types/types';
+import { BookingComWorkerPayload, BookingComWorkerResponse, IUserInputForCrawling } from '../../../types/types';
 import appendToCSVFile from '../../../utils/files/appendToCsvFile';
 import jsObjectToCsvRecord from '../../../utils/files/jsObjectToCsvRecord';
 import parseXmlString from '../../../utils/files/xmlToJson';
@@ -18,36 +18,33 @@ const hotelPriceCsvColumns = hotelPriceCsvHeaders.split(',').slice(0, -1);
 hotelCsvColumns.push('createdAt');
 locationCsvColumns.push('createdAt');
 hotelPriceCsvColumns.push('createdAt');
-const hotelCsvFilePath = path.join(__dirname, '..', 'output', 'agodaHotelData.csv');
-const hotelPriceCsvFilePath = path.join(__dirname, '..', 'output', 'agodaHotelPriceData.csv');
-const locationCsvFilePath = path.join(__dirname, '..', 'output', 'agodaLocationData.csv');
-
-const extractHotelIdFromUrl = (url: string) => {
-    const split = url.split('-');
-    const hotelId = split[split.length - 1].split('.')[0];
-    return hotelId;
-}
+const hotelCsvFilePath = path.join(__dirname, '..', 'output', 'airBnbHotelData.csv');
+const hotelPriceCsvFilePath = path.join(__dirname, '..', 'output', 'airBnbHotelPriceData.csv');
+const locationCsvFilePath = path.join(__dirname, '..', 'output', 'airBnbLocationData.csv');
 
 // crawl xml sitemaps and scrapes the desired url via request
-export const crawlXMLFile = async (userInput?: IUserInputForCrawling) => {
+export const crawlXMLFile = async (cookie:string, xmlFilesLastIndex: number = 0, hotelsLastIndex: number = 0, userInput?: IUserInputForCrawling) => {
     // dowload sitemap
     const sitemap = await SitemapCrawler.fetchXmlFile(sitemapURL);
     // filter sitemap
-    const hotelSitemapUrls = SitemapCrawler.extractXmlUrlsFromSitemap(sitemap, 'https://www.directbooking.ro/sitemap_ro_hotels');
+    const hotelSitemapUrls = SitemapCrawler.extractXmlUrlsFromSitemap(sitemap, 'https://www.booking.com/sitembk-hotel-en-gb');
 
     // loop through for the filter sitemaps
-    for (let i = 0; i < hotelSitemapUrls.length; ++i) {
+    for (let i = xmlFilesLastIndex; i < hotelSitemapUrls.length; ++i) {
         const hotelSitemap = hotelSitemapUrls[i];
 
         // download and parse
         const hotelSitemapXml = await SitemapCrawler.fetchXmlFile(hotelSitemap);
         const hotelSitemapJson = parseXmlString(hotelSitemapXml);
 
-        const { urlset: { url: hotelUrls } } = hotelSitemapJson;
+        let { urlset: { url: hotelUrls } } = hotelSitemapJson;
+
+        hotelUrls = hotelUrls.slice(hotelsLastIndex);
+        hotelsLastIndex = 0;
 
         // creating worker pool
         const workerPath = path.join(__dirname, 'worker.js');
-        const pool = new WorkerPool<DirectBookingWorkerPayload, DirectBookingWorkerResponse>(workerPath, 5);
+        const pool = new WorkerPool<BookingComWorkerPayload, BookingComWorkerResponse>(workerPath, 10);
 
         // create write stream for each data set
         const hotelDataWriteStream = fs.createWriteStream(hotelCsvFilePath, { flags: 'a' });
@@ -67,13 +64,13 @@ export const crawlXMLFile = async (userInput?: IUserInputForCrawling) => {
         await Promise.all(hotelUrls.map(async (hotelUrl: any) => {
             // extract hotel id from hotel url
             const url = hotelUrl.loc._text;
-            const hotelId = extractHotelIdFromUrl(url);
+            // const hotelId = extractHotelIdFromUrl(url);
 
             // run worker with hotelId and user input
             let res = await pool.run(() => ({
-                hotelId,
                 userInput: userInput || getRandomUserInput({ withChildren: false }),
-                hotelUrl: url
+                hotelUrl: url,
+                cookie,
             }));
 
             const { data, error } = res;
@@ -103,7 +100,7 @@ export const crawlXMLFile = async (userInput?: IUserInputForCrawling) => {
                     locationDataChunck = '';
                 }
 
-                console.log(`Hotel with id: ${hotelData.siteHotelId} scraped`);
+                console.log(`Hotel with id: ${hotelData?.siteHotelId} scraped`);
             } else {
                 console.log(error?.message);
                 appendToCSVFile(path.join(__dirname, '..', 'output', 'airBnbErrorData.csv'), jsObjectToCsvRecord({ errorMsg: error?.message }, ['errorMsg']));

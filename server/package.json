@@ -10,8 +10,13 @@
     "start": "node dist/src/index.js",
     "start2": "ts-node src/index.ts",
     "test": "mocha -r ts-node/register 'tests/**/*.ts' --timeout 50000",
-    "test-one": "mocha -r ts-node/register 'tests/bookingcom/unit/scraper/fetchAndParseHotelData.test.ts' --timeout 60000",
-    "build": "yarn test && tsc"
+    "crawl-bookingcom": "node dist/src/scripts/booking.com",
+    "crawl-directbookingro": "node dist/src/scripts/directbooking.ro",
+    "crawl-agodacom": "node dist/src/scripts/agoda.com",
+    "test-one": "mocha -r ts-node/register 'tests/agoda.com/unit/scraper/getHotelId.test.ts' --timeout 60000",
+    "build": "yarn test && tsc",
+    "lint": "eslint . --ext .ts",
+    "lint-and-fix": "eslint . --ext .ts --fix"
   },
   "dependencies": {
     "axios": "^1.2.1",
@@ -21,16 +26,15 @@
     "jsdom": "^21.1.0",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
+    "pg": "^8.10.0",
     "puppeteer": "^19.5.2",
     "puppeteer-extra": "^3.3.4",
     "puppeteer-extra-plugin-stealth": "^2.11.1",
+    "typeorm": "^0.3.12",
     "user-agents": "^1.0.1222",
     "uuid": "^9.0.0",
     "xml-js": "^1.6.11",
     "xml-stream": "^0.4.5"
-  },
-  "lint-staged": {
-    "*.js": "node_modules/.bin/eslint --fix"
   },
   "devDependencies": {
     "@types/chai": "^4.3.4",
@@ -41,12 +45,15 @@
     "@types/request-promise-native": "^1.0.18",
     "@types/user-agents": "^1.0.2",
     "@types/uuid": "^9.0.0",
+    "@typescript-eslint/eslint-plugin": "^5.55.0",
+    "@typescript-eslint/parser": "^5.55.0",
     "chai": "^4.3.7",
     "eslint": "^7.0.0",
     "eslint-config-standard": "^11.0.0",
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-node": "^7.0.1",
     "eslint-plugin-promise": "^4.0.0",
+    "eslint-plugin-shopify": "^35.1.0",
     "eslint-plugin-standard": "^3.1.0",
     "lint-staged": "^13.0.3",
     "mocha": "^10.2.0",
