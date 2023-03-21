@@ -1,7 +1,8 @@
 import { JSDOM } from 'jsdom';
 import { v4 as uuidv4 } from 'uuid';
+import { Hotel } from '../../../entities/Hotel';
 import RequestScraper from '../../../scrapers/RequestScraper';
-import { DirectBookingWorkerResponse, ErrorRequestFetch, IHotel, IHotelPrice, ILocation, IUserInputForCrawling } from '../../../types/types';
+import { DirectBookingWorkerResponse, ErrorRequestFetch, IHotel, IHotelPrice, ILocation, IUserInputForCrawling, Nullable } from '../../../types/types';
 import { getDateDifferenceInDays } from '../../../utils/parse/parseUtils';
 import { directBookingHeaders } from '../headers/headers';
 import { constructQueryStringPayload } from '../payload/payload';
@@ -9,7 +10,7 @@ import { constructQueryStringPayload } from '../payload/payload';
 const siteOrigin = 'https://www.directbooking.ro';
 const apiEndpoint = `${siteOrigin}/ajax.ashx`;
 
-export const parsePriceData = (priceHTML: any, userInput: IUserInputForCrawling, hotelId: string): { hotelPricesData: IHotelPrice[] } => {
+export const parsePriceData = (priceHTML: any, userInput: IUserInputForCrawling, existingHotelId: string): { hotelPricesData: IHotelPrice[] } => {
     const dom = new JSDOM(priceHTML);
     const document = dom.window.document;
 
@@ -33,7 +34,7 @@ export const parsePriceData = (priceHTML: any, userInput: IUserInputForCrawling,
 
         hotelPricesData.push({
             id: uuidv4(),
-            hotelId,
+            hotelId: existingHotelId,
             from,
             to,
             pricePerNight,
@@ -203,9 +204,9 @@ const preparePayload = (id: string, userInput: IUserInputForCrawling) => {
     return endpoint;
 }
 
-export const scrapeHotelByIdAndUserInput = async (id: string, userInput: IUserInputForCrawling, hotelUrl: string, cookie: string, siteHotelId?: string): Promise<DirectBookingWorkerResponse> => {
+export const scrapeHotelByIdAndUserInput = async (id: string, userInput: IUserInputForCrawling, hotelUrl: string, cookie: string, existingHotel?: Nullable<Hotel>): Promise<DirectBookingWorkerResponse> => {
     try {
-        if (!siteHotelId) {
+        if (!existingHotel) {
             const hotelAndLocationDataRaw = await fetchHotelAndLocationData(hotelUrl, cookie);
             const { hotelData, locationData } = parseDetailsAndLocationData(hotelAndLocationDataRaw);
             const hotelPricesDataRaw = await fetchHotelPrices(id, userInput, cookie);
@@ -221,11 +222,12 @@ export const scrapeHotelByIdAndUserInput = async (id: string, userInput: IUserIn
             }
         } else {
             const hotelPricesDataRaw = await fetchHotelPrices(id, userInput, cookie);
-            const { hotelPricesData } = parsePriceData(hotelPricesDataRaw, userInput, siteHotelId);
+            const { hotelPricesData } = parsePriceData(hotelPricesDataRaw, userInput, existingHotel.id);
 
             return {
                 data: {
                     hotelPricesData,
+                    hotelData: existingHotel
                 },
                 error: null
             }

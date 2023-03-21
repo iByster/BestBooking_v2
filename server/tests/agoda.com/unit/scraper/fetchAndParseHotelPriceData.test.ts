@@ -4,6 +4,7 @@ import { describe } from 'mocha';
 import { fetchHotelPrices, parseHotelPriceData } from '../../../../src/scripts/agoda.com/scraper/scraper';
 import delay from '../../../../src/utils/scrape/delay';
 import getRandomUserInput from '../../../../src/utils/payload/randomUserInput';
+import CookieManager from '../../../../src/utils/cookie/CookieManager';
 chai.use(chaiAsPromised);
 
 declare global {
@@ -12,6 +13,7 @@ declare global {
     }
   }
 
+const BASE_URL = 'https://www.agoda.com/';
 
 describe('agoda.com fetchHotelPrices and parseHotelPriceData', function () {
     let response1: any = null;
@@ -21,7 +23,7 @@ describe('agoda.com fetchHotelPrices and parseHotelPriceData', function () {
     let response5: any = null;
     let response6: any = null;
 
-    before(function() {
+    before(async function() {
         this.siteHotelId1 = '128492';
         this.siteHotelId2 = '17';
         this.siteHotelId3 = '538354';
@@ -42,41 +44,44 @@ describe('agoda.com fetchHotelPrices and parseHotelPriceData', function () {
         this.userInput2 = getRandomUserInput({
             withChildren: true,
         });
+
+        const cookieManager = new CookieManager(BASE_URL);
+        this.cookie = await cookieManager.fetchCookie({ proxy: false });
     })
 
     context('fetchHotelPrices', function() {
         it('should successfully fetch hotel prices data for siteHotelId1', async function() {
-            response1 = await fetchHotelPrices(this.siteHotelId1, this.userInput1);
+            response1 = await fetchHotelPrices(this.siteHotelId1, this.userInput1, this.cookie);
             await delay(1000);
             expect(response1).to.be.not.null;
         });
 
         it('should successfully fetch hotel prices data for siteHotelId2', async function() {
-            response2 = await fetchHotelPrices(this.siteHotelId2, this.userInput2);
+            response2 = await fetchHotelPrices(this.siteHotelId2, this.userInput2, this.cookie);
             await delay(1000);
             expect(response2).to.be.not.null;
         });
 
         it('should successfully fetch hotel prices data for siteHotelId3', async function() {
-            response3 = await fetchHotelPrices(this.siteHotelId3, this.userInput1);
+            response3 = await fetchHotelPrices(this.siteHotelId3, this.userInput1, this.cookie);
             await delay(1000);
             expect(response3).to.be.not.null;
         });
 
         it('should successfully fetch hotel prices data for siteHotelId4', async function() {
-            response4 = await fetchHotelPrices(this.siteHotelId4, this.userInput2);
+            response4 = await fetchHotelPrices(this.siteHotelId4, this.userInput2, this.cookie);
             await delay(1000);
             expect(response4).to.be.not.null;
         });
 
         it('should successfully fetch hotel prices data for siteHotelId5', async function() {
-            response5 = await fetchHotelPrices(this.siteHotelId5, this.userInput1);
+            response5 = await fetchHotelPrices(this.siteHotelId5, this.userInput1, this.cookie);
             await delay(1000);
             expect(response5).to.be.not.null;
         });
 
         it('should successfully fetch hotel prices data for siteHotelId6', async function() {
-            response6 = fetchHotelPrices(this.siteHotelId6, this.userInput1);
+            response6 = fetchHotelPrices(this.siteHotelId6, this.userInput1, this.cookie);
             await delay(1000);
             await expect(response6).to.be.rejectedWith(/Request failed with status code 502/);
         });

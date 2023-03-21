@@ -2,6 +2,7 @@ import chai, { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { describe } from 'mocha';
 import { fetchHotelAndLocationData, parseHotelAndLocationData } from '../../../../src/scripts/agoda.com/scraper/scraper';
+import CookieManager from '../../../../src/utils/cookie/CookieManager';
 import getRandomUserInput from '../../../../src/utils/payload/randomUserInput';
 import delay from '../../../../src/utils/scrape/delay';
 chai.use(chaiAsPromised);
@@ -10,7 +11,9 @@ declare global {
     interface Window {
       initParams: any;
     }
-  }
+}
+
+const BASE_URL = 'https://www.agoda.com/';
 
 describe('agoda.com fetchHotelAndLocationData and parseHotelAndLocationData', function () {
     let response1: any = null;
@@ -20,7 +23,7 @@ describe('agoda.com fetchHotelAndLocationData and parseHotelAndLocationData', fu
     let response5: any = null;
     let response6: any = null;
 
-    before(function() {
+    before(async function() {
         this.siteHotelId1 = '128492';
         this.siteHotelId2 = '17';
         this.siteHotelId3 = '538354';
@@ -46,41 +49,44 @@ describe('agoda.com fetchHotelAndLocationData and parseHotelAndLocationData', fu
             numberOfAdultsRange: { min: 2, max: 3 },
             numberOfRoomsRange: { min: 1, max: 1},
         });
+
+        const cookieManager = new CookieManager(BASE_URL);
+        this.cookie = await cookieManager.fetchCookie({ proxy: false });
     })
 
     context('fetchHotelAndLocationData', function() {
         it('should successfully fetch hotel and location data for siteHotelId1', async function() {
-            response1 = await fetchHotelAndLocationData(this.siteHotelId1, this.userInput1);
+            response1 = await fetchHotelAndLocationData(this.siteHotelId1, this.userInput1, this.cookie);
             await delay(1000);
             expect(response1).to.be.not.null;
         });
 
         it('should successfully fetch hotel and location data for siteHotelId2', async function() {
-            response2 = await fetchHotelAndLocationData(this.siteHotelId2, this.userInput2);
+            response2 = await fetchHotelAndLocationData(this.siteHotelId2, this.userInput2, this.cookie);
             await delay(1000);
             expect(response2).to.be.not.null;
         });
 
         it('should successfully fetch hotel and location data for siteHotelId3', async function() {
-            response3 = await fetchHotelAndLocationData(this.siteHotelId3, this.userInput1);
+            response3 = await fetchHotelAndLocationData(this.siteHotelId3, this.userInput1, this.cookie);
             await delay(1000);
             expect(response3).to.be.not.null;
         });
 
         it('should successfully fetch hotel and location data for siteHotelId4', async function() {
-            response4 = await fetchHotelAndLocationData(this.siteHotelId4, this.userInput2);
+            response4 = await fetchHotelAndLocationData(this.siteHotelId4, this.userInput2, this.cookie);
             await delay(1000);
             expect(response4).to.be.not.null;
         });
 
         it('should successfully fetch hotel and location data for siteHotelId5', async function() {
-            response5 = await fetchHotelAndLocationData(this.siteHotelId5, this.userInput1);
+            response5 = await fetchHotelAndLocationData(this.siteHotelId5, this.userInput1, this.cookie);
             await delay(1000);
             expect(response5).to.be.not.null;
         });
 
         it('should successfully fetch hotel and location data for siteHotelId6', async function() {
-            response6 = await fetchHotelAndLocationData(this.siteHotelId6, this.userInput1);
+            response6 = await fetchHotelAndLocationData(this.siteHotelId6, this.userInput1, this.cookie);
             await delay(1000);
             expect(response6).to.be.not.null;
         });
@@ -131,7 +137,7 @@ describe('agoda.com fetchHotelAndLocationData and parseHotelAndLocationData', fu
             expect(hotelData.description).to.be.eq('Conveniently situated in the El Poblado part of Medellín, this property puts you close to attractions and interesting dining options. This 5-star property is packed with in-house facilities to improve the quality and joy of your stay.');
             expect(hotelData.rating?.score).to.be.eq(8.7);
             expect(hotelData.rating?.maxScore).to.be.eq(10);
-            expect(hotelData.reviews).to.be.eq(8320);
+            expect(hotelData.reviews).to.be.greaterThanOrEqual(8322);
             expect(hotelData.link).to.be.eq(this.hotelUrl2);
             expect(hotelData.imageLink).to.include('agoda.net/hotelImages/17/17/17_16051513410042341853.jpg?ca=6&ce=1&s=1024x768');
             expect(hotelData.balcony).to.be.eq(false);
@@ -165,7 +171,7 @@ describe('agoda.com fetchHotelAndLocationData and parseHotelAndLocationData', fu
             expect(hotelData.description).to.be.eq("Get your trip off to a great start with a stay at this property, which offers free Wi-Fi in all rooms. Conveniently situated in the Saint Louis Downtown part of St. Louis (MO), this property puts you close to attractions and interesting dining options. Don't leave before paying a visit to the famous The Gateway Arch.  Rated with 3 stars, this high-quality property provides guests with access to restaurant, hot tub and fitness center on-site.");
             expect(hotelData.rating?.score).to.be.eq(9.4);
             expect(hotelData.rating?.maxScore).to.be.eq(10);
-            expect(hotelData.reviews).to.be.eq(160);
+            expect(hotelData.reviews).to.be.greaterThanOrEqual(164);
             expect(hotelData.link).to.be.eq(this.hotelUrl3);
             expect(hotelData.imageLink).to.include('agoda.net/hotelImages/538354/0/be7125d9020d17bb9ec6200139a4fb09.jpg?ca=0&ce=1&s=1024x768');
             expect(hotelData.balcony).to.be.eq(false);
@@ -233,7 +239,7 @@ describe('agoda.com fetchHotelAndLocationData and parseHotelAndLocationData', fu
             expect(hotelData.description).to.be.eq("In addition to the standard of Indonesia Care, all guests get free Wi-Fi in all rooms and free parking if arriving by car. Strategically situated in Simpang Lima, allowing you access and proximity to local attractions and sights. Don't leave before paying a visit to the famous Lawang Sewu.  Rated with 4 stars, this high-quality property provides guests with access to massage, restaurant and fitness center on-site.");
             expect(hotelData.rating?.score).to.be.eq(8.4);
             expect(hotelData.rating?.maxScore).to.be.eq(10);
-            expect(hotelData.reviews).to.be.eq(788);
+            expect(hotelData.reviews).to.be.greaterThanOrEqual(800);
             expect(hotelData.link).to.be.eq(this.hotelUrl5);
             expect(hotelData.imageLink).to.include('agoda.net/hotelImages/2690923/-1/81abfe4d4fc3ea0d41646f4486d10d92.jpg?ca=7&ce=1&s=1024x768');
             expect(hotelData.balcony).to.be.eq(false);

@@ -4,26 +4,20 @@ import { Hotel } from '../../../entities/Hotel';
 import { HotelPrice } from '../../../entities/HotelPrice';
 import { Location } from '../../../entities/Location';
 import HotelService from '../../../services/HotelService';
-import { DirectBookingWorkerPayload, DirectBookingWorkerResponse, IUserInputForCrawling } from '../../../types/types';
+import { AgodaComWorkerPayload, AgodaComWorkerResponse, IUserInputForCrawling } from '../../../types/types';
 import appendToCSVFile from '../../../utils/files/appendToCsvFile';
 import jsObjectToCsvRecord from '../../../utils/files/jsObjectToCsvRecord';
 import parseXmlString from '../../../utils/files/xmlToJson';
 import getRandomUserInput from '../../../utils/payload/randomUserInput';
 import { WorkerPool } from '../../../utils/worker-pool/WorkerPool';
-import { sitemapURL } from './sitemap';
-
-const extractHotelIdFromUrl = (url: string) => {
-    const split = url.split('-');
-    const hotelId = split[split.length - 1].split('.')[0];
-    return hotelId;
-}
+import sitemapURL from './sitemap';
 
 // crawl xml sitemaps and scrapes the desired url via request
 export const crawlXMLFile = async (cookie: string, xmlFilesLastIndex: number = 0, hotelsLastIndex: number = 0, userInput?: IUserInputForCrawling) => {
     // dowload sitemap
     const sitemap = await SitemapCrawler.fetchXmlFile(sitemapURL);
     // filter sitemap
-    const hotelSitemapUrls = SitemapCrawler.extractXmlUrlsFromSitemap(sitemap, 'https://www.directbooking.ro/sitemap_ro_hotels');
+    const hotelSitemapUrls = SitemapCrawler.extractXmlUrlsFromSitemap(sitemap, 'https://www.agoda.com/en-gb/sitemaps-wl_1_lang_16_pagetype_7');
 
     // loop through for the filter sitemaps
     for (let i = xmlFilesLastIndex; i < hotelSitemapUrls.length; ++i) {
@@ -40,10 +34,10 @@ export const crawlXMLFile = async (cookie: string, xmlFilesLastIndex: number = 0
 
         // creating worker pool
         const workerPath = path.join(__dirname, 'worker.js');
-        const pool = new WorkerPool<DirectBookingWorkerPayload, DirectBookingWorkerResponse>(workerPath, 12);
+        const pool = new WorkerPool<AgodaComWorkerPayload, AgodaComWorkerResponse>(workerPath, 8);
 
         // define chunk limit
-        const chunckMaxSize = 10;
+        const chunckMaxSize = 5;
         let chunkCount = 1;
 
         let hotelsData: Hotel[] = [];
@@ -54,14 +48,12 @@ export const crawlXMLFile = async (cookie: string, xmlFilesLastIndex: number = 0
         await Promise.all(hotelUrls.map(async (hotelUrl: any) => {
             // extract hotel id from hotel url
             const url = hotelUrl.loc._text;
-            const hotelId = extractHotelIdFromUrl(url);
 
             const hotelService = new HotelService();
-            const existingHotel = await hotelService.checkIfHotelExist(hotelId);
+            const existingHotel = await hotelService.checkIfHotelExistByUrl(url);
 
             // run worker with hotelId and user input
             let res = await pool.run(() => ({
-                hotelId,
                 userInput: userInput || getRandomUserInput({ withChildren: false }),
                 hotelUrl: url,
                 cookie,
@@ -72,6 +64,7 @@ export const crawlXMLFile = async (cookie: string, xmlFilesLastIndex: number = 0
 
             if (data) {
                 const { hotelData, hotelPricesData, locationData } = data;
+
 
                 if (hotelData && !existingHotel) {
                     hotelsData.push(Hotel.create(hotelData as Hotel));
@@ -99,11 +92,10 @@ export const crawlXMLFile = async (cookie: string, xmlFilesLastIndex: number = 0
                     hotelPricesDataArr = [];
                 }
 
-   
-                console.log(`Hotel with id: ${hotelData?.siteHotelId} scraped`);
+                console.log(`Hotel with id: ${hotelData.siteHotelId} scraped`);
             } else {
                 console.log(error?.message);
-                appendToCSVFile(path.join(__dirname, '..', 'output', 'directBookingErros.csv'), jsObjectToCsvRecord({ errorMsg: error?.message }, ['errorMsg']));
+                appendToCSVFile(path.join(__dirname, '..', 'output', 'airBnbErrorData.csv'), jsObjectToCsvRecord({ errorMsg: error?.message }, ['errorMsg']));
             }
         }));
     }

@@ -14,9 +14,9 @@ class RequestScraper {
         return rotatePrebuildHeaders();
     }
 
-    private async getCookie() {
+    private async getCookie(opts: RequestScraperOptions) {
         const cookieManager = new CookieManager(this.siteOrigin);
-        const cookie = await cookieManager.fetchCookie();
+        const cookie = await cookieManager.fetchCookie({proxy: opts.proxy ? true : false});
         return cookie;
     }
 
@@ -44,7 +44,7 @@ class RequestScraper {
         }
 
         if (opts.cookie) {
-            headers.cookie = await this.getCookie();
+            headers.cookie = await this.getCookie(opts);
         }
 
         if (opts.proxy) {

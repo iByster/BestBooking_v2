@@ -7,6 +7,12 @@ class HotelService {
 
         return hotel;
     }
+
+    async checkIfHotelExistByUrl(link: string) {
+        const hotel = await Hotel.findOneBy({ link });
+
+        return hotel;
+    }
 }
 
 export default HotelService;

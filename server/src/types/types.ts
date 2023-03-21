@@ -1,7 +1,5 @@
 import { AxiosRequestConfig } from 'axios';
 import { Hotel } from '../entities/Hotel';
-import { HotelPrice } from '../entities/HotelPrice';
-import { Location } from '../entities/Location';
 
 export interface IUserInput {
     locationName: string;
@@ -44,7 +42,7 @@ export interface BaseWorkerPayload {
     hotelId: string;
     userInput: IUserInputForCrawling;
     cookie: string;
-    siteHotelId?: string;
+    existingHotel?: Nullable<Hotel>;
 }
 
 export interface AirBnbWorkerPayload extends BaseWorkerPayload {}
@@ -56,6 +54,8 @@ export interface DirectBookingWorkerPayload extends BaseWorkerPayload {
 export interface BookingComWorkerPayload {
     hotelUrl: string;
     userInput: IUserInputForCrawling;
+    cookie: string;
+    existingHotel?: Nullable<Hotel>;
 }
 
 export interface TripComWokerPayload extends BaseWorkerPayload {
@@ -64,6 +64,8 @@ export interface TripComWokerPayload extends BaseWorkerPayload {
 export interface AgodaComWorkerPayload {
     hotelUrl: string;
     userInput: IUserInputForCrawling;
+    cookie: string;
+    existingHotel?: Nullable<Hotel>;
 };
 
 export interface AirBnbWorkerResponse extends WorkerResponse<BaseWorkerResponse> {}
@@ -80,7 +82,7 @@ export type WorkerResponse<T> = {
 }
 
 export interface BaseWorkerResponse {
-    hotelData?: IHotel;
+    hotelData: IHotel;
     hotelPricesData: IHotelPrice[];
     locationData?: ILocation;
 }
