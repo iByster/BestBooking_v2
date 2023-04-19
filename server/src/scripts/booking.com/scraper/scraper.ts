@@ -5,7 +5,7 @@ import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 import { v4 as uuidv4 } from 'uuid';
 import { Hotel } from '../../../entities/Hotel';
 import RequestScraper from '../../../scrapers/RequestScraper';
-import { BookingComWorkerResponse, ErrorRequestFetch, IHotel, IHotelPrice, ILocation, IRoom, IUserInputForCrawling, Nullable } from '../../../types/types';
+import { BaseScraperResponse, ErrorRequestFetch, IHotelPrice, IRoom, IUserInputForCrawling, Nullable } from '../../../types/types';
 import { extractNumbers, getDateDifferenceInDays } from '../../../utils/parse/parseUtils';
 import { bookingBaseHeaders } from '../headers/headers';
 import { constructQueryStringPayload } from '../payload/payload';
@@ -13,7 +13,7 @@ puppeteerXtra.use(StealthPlugin());
 
 const siteOrigin = 'https://www.booking.com/';
 
-export const parseData = async (response: string, siteHotelId: string, hotelUrl: string, userInput: IUserInputForCrawling): Promise<{ hotelData: IHotel, locationData: ILocation, hotelPricesData: IHotelPrice[] }> => {
+export const parseData = async (response: string, siteHotelId: string, hotelUrl: string, userInput: IUserInputForCrawling) => {
     const { checkIn, checkOut, rooms } = userInput;
     const currency = 'RON'
     
@@ -282,7 +282,7 @@ export const fetchData = async (id: string, userInput: IUserInputForCrawling, ho
     }
 }
 
-export const scrapeHotelByIdAndUserInput = async (userInput: IUserInputForCrawling, hotelUrl: string, cookie: string, existingHotel?: Nullable<Hotel>): Promise<BookingComWorkerResponse> => {
+export const scrapeHotelByIdAndUserInput = async (userInput: IUserInputForCrawling, hotelUrl: string, cookie: string, existingHotel?: Nullable<Hotel>): Promise<BaseScraperResponse> => {
     try {
         let hotelId;
         if (!existingHotel) {
@@ -299,8 +299,7 @@ export const scrapeHotelByIdAndUserInput = async (userInput: IUserInputForCrawli
         const parsedData = await parseData(rawData, hotelId, hotelUrl, userInput);
 
         return {
-            data: parsedData,
-            error: null,
+            ...parsedData,
         }
     } catch(err: any) {
         if (err instanceof Error) {

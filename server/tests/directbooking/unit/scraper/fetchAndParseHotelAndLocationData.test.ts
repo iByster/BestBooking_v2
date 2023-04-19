@@ -172,7 +172,7 @@ describe('directbooking.ro fetchHotelAndLocationData and parseHotelAndLocationDa
             expect(hotelData.hotelName).to.be.eq('Xo Hotels Infinity Amsterdam Ex Nieuw Slotania');
             expect(hotelData.siteOrigin).to.be.eq('https://www.directbooking.ro');
             expect(hotelData.siteHotelId).to.be.eq(this.siteHotelId3);
-            expect(hotelData.description).to.be.eq('Situat într-un cartier rezidential cu frunze 2 stele Nieuw Slotania Hotel este doar o călătorie de 20 minute cu tramvaiul la Dam Square, unde oaspeţii pot vizita muzee, bucuraţi-vă de cumpărături sau să exploreze străzile pitoreşti mici şi canale.  ...');
+            expect(hotelData.description).to.be.eq("Acest hotel modern de 3 stele, recent renovat, se află în cartierul Slotermeer și are legături bune de transport spre centrul orașului Amsterdam și Aeroportul Schiphol. Situată vizavi de XO Hotels Infinity, stația de tramvai și de autobuz Plein '40-'45- oferă conexiuni spre Rijksmuseum și Gara Centrală din Amsterdam. Acolo oprește și autobuzul de noapte spre Dam și locurile cu viață de noapte din Piața Leidse.");
             expect(hotelData.rating?.score).to.be.eq(2);
             expect(hotelData.rating?.maxScore).to.be.eq(5);
             expect(hotelData.reviews).to.be.eq(undefined);

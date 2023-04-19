@@ -2,10 +2,10 @@ import { JSDOM } from 'jsdom';
 import { v4 as uuidv4 } from 'uuid';
 import { Hotel } from '../../../entities/Hotel';
 import RequestScraper from '../../../scrapers/RequestScraper';
-import { DirectBookingWorkerResponse, ErrorRequestFetch, IHotel, IHotelPrice, ILocation, IUserInputForCrawling, Nullable } from '../../../types/types';
+import { BaseScraperResponse, ErrorRequestFetch, IHotel, IHotelPrice, ILocation, IUserInputForCrawling, Nullable } from '../../../types/types';
 import { getDateDifferenceInDays } from '../../../utils/parse/parseUtils';
-import { directBookingHeaders } from '../headers/headers';
 import { constructQueryStringPayload } from '../payload/payload';
+import { directBookingHeaders } from '../headers/headers';
 
 const siteOrigin = 'https://www.directbooking.ro';
 const apiEndpoint = `${siteOrigin}/ajax.ashx`;
@@ -138,7 +138,7 @@ export const fetchHotelPrices = async (hotelId: string, userInput: IUserInputFor
                 ...directBookingHeaders,
                 cookie
             },
-            includeRotatingHeaders: true,
+            includeRotatingHeaders: false,
         });
 
         const response = await requestScraper.scrapeHotel(requestOptionsForPrices);
@@ -175,7 +175,7 @@ export const fetchHotelAndLocationData = async (hotelUrl: string, cookie: string
                 ...directBookingHeaders,
                 cookie
             },
-            includeRotatingHeaders: true,
+            includeRotatingHeaders: false,
         });
 
         const response = await requestScraper.scrapeHotel(requestOptionsForDetails);
@@ -204,7 +204,7 @@ const preparePayload = (id: string, userInput: IUserInputForCrawling) => {
     return endpoint;
 }
 
-export const scrapeHotelByIdAndUserInput = async (id: string, userInput: IUserInputForCrawling, hotelUrl: string, cookie: string, existingHotel?: Nullable<Hotel>): Promise<DirectBookingWorkerResponse> => {
+export const scrapeHotelByIdAndUserInput = async (id: string, userInput: IUserInputForCrawling, hotelUrl: string, cookie: string, existingHotel?: Nullable<Hotel>): Promise<BaseScraperResponse> => {
     try {
         if (!existingHotel) {
             const hotelAndLocationDataRaw = await fetchHotelAndLocationData(hotelUrl, cookie);
@@ -213,23 +213,17 @@ export const scrapeHotelByIdAndUserInput = async (id: string, userInput: IUserIn
             const { hotelPricesData } = parsePriceData(hotelPricesDataRaw, userInput, hotelData.id);
 
             return {
-                data: {
-                    hotelData,
-                    locationData,
-                    hotelPricesData,
-                },
-                error: null
+                hotelData,
+                locationData,
+                hotelPricesData,
             }
         } else {
             const hotelPricesDataRaw = await fetchHotelPrices(id, userInput, cookie);
             const { hotelPricesData } = parsePriceData(hotelPricesDataRaw, userInput, existingHotel.id);
 
             return {
-                data: {
-                    hotelPricesData,
-                    hotelData: existingHotel
-                },
-                error: null
+                hotelPricesData,
+                hotelData: existingHotel
             }
         }
     } catch(err: any) {

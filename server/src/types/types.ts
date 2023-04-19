@@ -1,14 +1,14 @@
 import { AxiosRequestConfig } from 'axios';
 import { Hotel } from '../entities/Hotel';
 
-export interface IUserInput {
-    locationName: string;
+
+export interface IUserInputForCrawling {
     checkIn: Date;
     checkOut: Date;
     rooms: IRoom[];
 }
-
-export interface IUserInputForCrawling {
+export interface IUserInput {
+    locationName: string;
     checkIn: Date;
     checkOut: Date;
     rooms: IRoom[];
@@ -66,6 +66,23 @@ export interface AgodaComWorkerPayload {
     userInput: IUserInputForCrawling;
     cookie: string;
     existingHotel?: Nullable<Hotel>;
+    siteHotelId?: string;
+};
+
+export interface HotelComWorkerPayload {
+    hotelUrl: string;
+    userInput: IUserInputForCrawling;
+    cookie: string;
+    existingHotel?: Nullable<Hotel>;
+    siteHotelId?: string;
+};
+
+export interface EskyRoWorkerPayload {
+    hotelUrl: string;
+    userInput: IUserInputForCrawling;
+    cookie: string;
+    existingHotel?: Nullable<Hotel>;
+    siteHotelId: string;
 };
 
 export interface AirBnbWorkerResponse extends WorkerResponse<BaseWorkerResponse> {}
@@ -73,15 +90,29 @@ export interface DirectBookingWorkerResponse extends WorkerResponse<BaseWorkerRe
 export interface BookingComWorkerResponse extends WorkerResponse<BaseWorkerResponse> {}
 export interface TripComWorkerResponse extends WorkerResponse<BaseWorkerResponse> {}
 export interface AgodaComWorkerResponse extends WorkerResponse<BaseWorkerResponse> {}
+export interface HotelComWorkerResponse extends WorkerResponse<BaseScraperResponse> {}
+export interface EskyRoWorkerResponse extends WorkerResponse<BaseScraperResponse> {}
+export type AgodaComWorkerResponseV2 = WorkerResponseV2<BaseScraperResponse>
 
 export type WorkerError = Error;
 
+type WorkerResponseV2<T> =
+  | { data: Nullable<T>; workerId: number }
+  | { error: WorkerError, workerId: number };
+
 export type WorkerResponse<T> = {
     data: Nullable<T>;
+    workerId: number;
     error: Nullable<WorkerError>;
 }
 
-export interface BaseWorkerResponse {
+export type BaseWorkerResponse = {
+    hotelData: IHotel;
+    hotelPricesData: IHotelPrice[];
+    locationData?: ILocation;
+}
+
+export type BaseScraperResponse = {
     hotelData: IHotel;
     hotelPricesData: IHotelPrice[];
     locationData?: ILocation;
@@ -103,6 +134,7 @@ export interface RequestScraperOptions {
     body: any;
     includeRotatingHeaders: boolean;
     specificHeaders: any;
+    checkForRedirects?: boolean;
 }
 
 export class ErrorRequestFetch extends Error {

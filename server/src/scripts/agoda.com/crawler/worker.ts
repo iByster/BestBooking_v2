@@ -1,29 +1,29 @@
-import HotelService from "../../../services/HotelService";
-import DropPoint from "../../../type-orm.config";
 import { AgodaComWorkerPayload, AgodaComWorkerResponse } from "../../../types/types";
 import { randomDelay } from "../../../utils/scrape/randomDelay";
 import { scrapeHotelByUserInput } from "../scraper/scraper";
-const { parentPort, isMainThread } = require('worker_threads');
+import logger from '../../../utils/logger/Logger';
+import { colorizeStringByNumber } from "../../../utils/logger/colorizeString";
+const { parentPort, isMainThread, threadId } = require('worker_threads');
 
 if (isMainThread) {
     throw new Error('Its not a worker');
 }
 
 parentPort.on('message', async (payload: AgodaComWorkerPayload) => {
-    const { userInput, hotelUrl, cookie, existingHotel } = payload;
-    console.log('entered worker with user input: ', userInput);
+    const { userInput, hotelUrl, cookie, existingHotel, siteHotelId } = payload;
+    logger.debug(`WORKER ID ${colorizeStringByNumber(threadId.toString(), threadId)}: entered worker with user input: ${JSON.stringify(userInput)}`);
 
     if (existingHotel) {
-        console.log(`Scraping existing hotel: ${hotelUrl}`);
+        logger.debug(`WORKER ID ${colorizeStringByNumber(threadId.toString(), threadId)}: scraping existing hotel: ${hotelUrl}`);
     }
 
-    let response: AgodaComWorkerResponse = { data: null, error: null };
+    let response: AgodaComWorkerResponse = { workerId: threadId, data: null, error: null };
     
-    await randomDelay(30000, 55000);
+    await randomDelay(30000, 35000);
     
     try {
-        const workerResponse = await scrapeHotelByUserInput(hotelUrl, userInput, cookie, existingHotel);
-        response = workerResponse;
+        const workerResponse = await scrapeHotelByUserInput(hotelUrl, userInput, cookie, existingHotel, siteHotelId);
+        response.data = workerResponse;
     } catch (err) {
         if (err instanceof Error) {
             response.error = err;

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { RequestOptions, RequestScraperOptions } from "../types/types";
+import { ErrorRequestFetch, RequestOptions, RequestScraperOptions } from "../types/types";
 import CookieManager from "../utils/cookie/CookieManager";
 import { rotatePrebuildHeaders } from "../utils/header/getPrebuildBaseHeaders";
 
@@ -60,13 +60,56 @@ class RequestScraper {
     }
 
 
-    async scrapeHotel(requestOptions: RequestOptions): Promise<{ data: any, status: number }> {
-        const { data, status } = await axios(requestOptions);
+    async scrapeHotel(requestOptions: RequestOptions) {
+        const { data, status, headers, request } = await axios(requestOptions);
 
         return {
             data,
             status,
+            headers,
+            request,
         };
+    }
+
+    async scrapeHotelAndBuildReq(requestOptions: RequestScraperOptions) {
+        const { apiEndpoint, body, cookie, proxy, method, specificHeaders, includeRotatingHeaders, checkForRedirects } = requestOptions;
+
+        try {
+            const requestOptionsForDetails = await this.buildRequestOptions({
+                apiEndpoint,
+                body,
+                cookie,
+                proxy,
+                method,
+                specificHeaders,
+                includeRotatingHeaders,
+            });
+    
+            const response = await this.scrapeHotel(requestOptionsForDetails);
+            const { data, status } = response;
+    
+
+            if (checkForRedirects) {
+                if (response.request.res.responseUrl !== apiEndpoint) {
+                    throw new Error('Request was redirected to:' + response.request.res.responseUrl);
+                }
+            }
+
+            if (status >= 400) {
+                throw new Error(`Request failed with status code: ` + status);
+            }
+    
+            return data;
+        } catch(err) {
+            let message;
+            if (err instanceof Error) {
+                message = err.message;
+            } else {
+                message = String(err);
+            }
+    
+            throw new ErrorRequestFetch(`fetchError: ${message}`);
+        }
     }
 }
 

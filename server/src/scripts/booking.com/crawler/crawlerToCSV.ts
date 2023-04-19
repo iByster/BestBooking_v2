@@ -7,7 +7,7 @@ import jsObjectToCsvRecord from '../../../utils/files/jsObjectToCsvRecord';
 import parseXmlString from '../../../utils/files/xmlToJson';
 import getRandomUserInput from '../../../utils/payload/randomUserInput';
 import { WorkerPool } from '../../../utils/worker-pool/WorkerPool';
-import { sitemapURL } from './sitemap';
+import { sitemapURL } from './sitemaps/sitemap';
 
 const hotelCsvHeaders = 'id,hotelName,siteOrigin,siteHotelId,description,rating,reviews,link,imageLink,balcony,freeParking,kitchen,bayView,mountainView,washer,wifi,bathroom,coffeMachine,airConditioning,createdAt\n';
 const locationCsvHeaders = 'id,hotelId,locationName,lat,lon,address,area,country,region,createdAt\n';

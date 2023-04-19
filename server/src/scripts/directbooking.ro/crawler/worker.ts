@@ -1,9 +1,9 @@
-import HotelService from "../../../services/HotelService";
 import { DirectBookingWorkerPayload, DirectBookingWorkerResponse } from "../../../types/types";
 import { randomDelay } from "../../../utils/scrape/randomDelay";
 import { scrapeHotelByIdAndUserInput } from "../scraper/scraper";
-
-const { parentPort, isMainThread } = require('worker_threads');
+import logger from '../../../utils/logger/Logger';
+import { colorizeStringByNumber } from "../../../utils/logger/colorizeString";
+const { parentPort, isMainThread, threadId } = require('worker_threads');
 
 if (isMainThread) {
     throw new Error('Its not a worker');
@@ -11,21 +11,19 @@ if (isMainThread) {
 
 parentPort.on('message', async (payload: DirectBookingWorkerPayload) => {
     const { hotelId, userInput, hotelUrl, cookie, existingHotel } = payload;
-    console.log('entered worker with user input: ', userInput);
-
-    console.log(hotelUrl);
+    logger.debug(`WORKER ID ${colorizeStringByNumber(threadId.toString(), threadId)}: entered worker with user input: ${JSON.stringify(userInput)}`);
 
     if (existingHotel) {
-        console.log(`Scraping existing hotel: ${hotelUrl}`);
+        logger.debug(`WORKER ID ${colorizeStringByNumber(threadId.toString(), threadId)}: scraping existing hotel: ${hotelUrl}`);
     }
 
-    let response: DirectBookingWorkerResponse = { data: null, error: null };
+    let response: DirectBookingWorkerResponse = { data: null, error: null, workerId: threadId };
     
-    await randomDelay(10000, 20000);
+    await randomDelay(30000, 40000);
     
     try {
         const workerResponse = await scrapeHotelByIdAndUserInput(hotelId, userInput, hotelUrl, cookie, existingHotel);
-        response = workerResponse;
+        response.data = workerResponse;
     } catch (err) {
         if (err instanceof Error) {
             response.error = err;

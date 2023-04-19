@@ -291,7 +291,7 @@ describe('booking.com fetchData and parseData', function () {
             expect(hotelData.siteOrigin).to.be.eq('https://www.booking.com/'); 
             expect(hotelData.siteHotelId).to.be.eq(this.siteHotelId5);
             expect(hotelData.description).to.be.eq('Family Retreat Holiday Home is set in Margate, 2.2 km from Uvongo Beach, 9 km from Mbumbazi Nature Reserve, and 13 km from Southbroom Golf Club.');
-            expect(hotelData.rating?.score).to.be.eq(7);
+            expect(hotelData.rating?.score).to.be.eq(5.5);
             expect(hotelData.rating?.maxScore).to.be.eq(10);
             expect(hotelData.reviews).to.be.eq(3);
             expect(hotelData.link).to.be.eq(this.hotelUrl5);

@@ -4,7 +4,7 @@ import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 import { v4 as uuidv4 } from 'uuid';
 import { Hotel } from '../../../entities/Hotel';
 import RequestScraper from '../../../scrapers/RequestScraper';
-import { AgodaComWorkerResponse, ErrorRequestFetch, IHotel, IHotelPrice, ILocation, IRoom, IUserInputForCrawling, Nullable } from '../../../types/types';
+import { BaseScraperResponse, ErrorRequestFetch, IHotel, IHotelPrice, ILocation, IRoom, IUserInputForCrawling, Nullable } from '../../../types/types';
 import { agodaBaseHeaders, agodaPriceHeaders } from '../headers/headers';
 import { constructGraphQLPayload } from '../payload/hotelData/payload';
 import { constructQueryStringPayload } from '../payload/hotelPrice/paylaod';
@@ -41,7 +41,7 @@ export const getHotelId = async (url: string) => {
 
         await page.waitForFunction(() => {
             return window.initParams.propertyId !== undefined;
-        }, { timeout: 10000 });
+        }, { timeout: 20000 });
 
         const hotelId = await page.evaluate(() => {
             return window.initParams.propertyId;
@@ -263,33 +263,30 @@ export const parseHotelPriceData = (response: any, userInput: IUserInputForCrawl
     return hotelPricesData;
 }
 
-export const scrapeHotelByUserInput = async (hotelUrl: string, userInput: IUserInputForCrawling, cookie: string, existingHotel?: Nullable<Hotel>): Promise<AgodaComWorkerResponse> => {
+export const scrapeHotelByUserInput = async (hotelUrl: string, userInput: IUserInputForCrawling, cookie: string, existingHotel?: Nullable<Hotel>, siteHotelId?: string): Promise<BaseScraperResponse> => {
     try {
         if (!existingHotel) {
-            const hotelId = await getHotelId(hotelUrl);
+            let hotelId: any = siteHotelId;
+            if (!hotelId) {
+                hotelId = await getHotelId(hotelUrl);
+            }
             const hotelAndLocationDataRaw = await fetchHotelAndLocationData(hotelId, userInput, cookie);
             const { hotelData, locationData } = parseHotelAndLocationData(hotelId, hotelUrl, hotelAndLocationDataRaw);
             const hotelPricesDataRaw = await fetchHotelPrices(hotelId, userInput, cookie);
             const hotelPricesData = parseHotelPriceData(hotelPricesDataRaw, userInput, hotelData.id);
             
             return {
-                data: {
-                    hotelData,
-                    locationData,
-                    hotelPricesData,
-                },
-                error: null
+                hotelData,
+                locationData,
+                hotelPricesData,
             }
         } else {
             const hotelPricesDataRaw = await fetchHotelPrices(existingHotel.siteHotelId, userInput, cookie);
             const hotelPricesData = parseHotelPriceData(hotelPricesDataRaw, userInput, existingHotel.id);
 
             return {
-                data: {
-                    hotelData: existingHotel,
-                    hotelPricesData,
-                },
-                error: null
+                hotelData: existingHotel,
+                hotelPricesData,
             }
         }
     } catch(err: any) {

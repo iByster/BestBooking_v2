@@ -1,5 +1,7 @@
 import { Worker } from 'worker_threads';
 import { QueueItem } from '../../types/types';
+import { colorizeStringByNumber } from '../logger/colorizeString';
+import logger from '../logger/Logger';
 
 export class WorkerPool<T, N> {
   private queue: QueueItem<T, N>[] = [];
@@ -55,7 +57,7 @@ export class WorkerPool<T, N> {
   }
 
   private async runWorker(workerId: number, queueItem: QueueItem<T, N>) {
-    console.log('WORKER ID: ', workerId)
+    logger.debug(`WORKER ID ${colorizeStringByNumber(workerId.toString(), workerId)}: initialized`)
     const worker = this.workersById[workerId];
     this.activeWorkersById[workerId] = true;
   
@@ -75,7 +77,7 @@ export class WorkerPool<T, N> {
       this.activeWorkersById[workerId] = false;
 
       if (!(this.queue.length > 0)) {
-        console.log('exit');
+        logger.debug(`WORKER ID ${colorizeStringByNumber(workerId.toString(), workerId)}: exited`);
         return null;
       }
   

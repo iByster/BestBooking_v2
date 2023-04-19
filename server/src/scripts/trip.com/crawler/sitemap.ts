@@ -1,0 +1,1 @@
+export const sitemapURL = 'https://www.trip.com/hotels/all-cities/all/?letter1=a&letter2=a'

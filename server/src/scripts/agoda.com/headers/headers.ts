@@ -36,3 +36,14 @@ export const agodaPriceHeaders = {
         'https://www.agoda.com/en-gb/ibis-hotel-singapore-novena/hotel/singapore-sg.html?finalPriceView=2&isShowMobileAppPrice=false&cid=-1&numberOfBedrooms=&familyMode=false&adults=2&children=0&rooms=1&maxRooms=0&checkIn=2023-02-25&isCalendarCallout=false&childAges=&numberOfGuest=0&missingChildAges=false&travellerType=-1&showReviewSubmissionEntry=false&currencyCode=EUR&isFreeOccSearch=false&isCityHaveAsq=false&los=18&searchrequestid=38b60324-44fb-4c1c-b554-2ba4ff2893c7',
     'Referrer-Policy': 'origin-when-cross-origin',
 };
+
+export const agodaCitySearchHeades = {
+    'ag-analytics-session-id': '-5388066479962342094',
+    'ag-correlation-id': '7ba193ac-25b3-42a6-8923-2e067b6ffa49',
+    'ag-debug-override-origin': 'RO',
+    'ag-language-locale': 'en-us',
+    'ag-page-type-id': '103',
+    'ag-request-attempt': '1',
+    'ag-request-id': 'a3441935-2fb4-49a3-abb7-3c8a63b1c755',
+    'ag-retry-attempt': '0',
+};

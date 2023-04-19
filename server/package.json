@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "workspaces": [
+    "packages/**/*"
+  ],
   "scripts": {
     "watch": "tsc -w",
     "dev": "nodemon dist/index.js",
@@ -13,7 +16,8 @@
     "crawl-bookingcom": "node dist/src/scripts/booking.com",
     "crawl-directbookingro": "node dist/src/scripts/directbooking.ro",
     "crawl-agodacom": "node dist/src/scripts/agoda.com",
-    "test-one": "mocha -r ts-node/register 'tests/agoda.com/unit/scraper/getHotelId.test.ts' --timeout 60000",
+    "crawl-eskyro": "node dist/src/scripts/esky.ro",
+    "test-one": "mocha -r ts-node/register 'tests/esky.ro/unit/scraper/*' --timeout 60000",
     "build": "yarn test && tsc",
     "lint": "eslint . --ext .ts",
     "lint-and-fix": "eslint . --ext .ts --fix"
@@ -33,6 +37,7 @@
     "typeorm": "^0.3.12",
     "user-agents": "^1.0.1222",
     "uuid": "^9.0.0",
+    "winston": "^3.8.2",
     "xml-js": "^1.6.11",
     "xml-stream": "^0.4.5"
   },

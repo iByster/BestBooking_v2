@@ -1,6 +1,7 @@
 import DropPoint from "../../type-orm.config";
 import CookieManager from "../../utils/cookie/CookieManager";
-import { crawlXMLFile } from "./crawler/crawlerToDB";
+import { crawlXMLFileFromFile } from "./crawler/crawlerToDB";
+import path from 'path';
 
 const BASE_URL = 'https://www.directbooking.ro/';
 
@@ -8,7 +9,7 @@ const run = async () => {
     const cookieManager = new CookieManager(BASE_URL);
     const cookie = await cookieManager.fetchCookie({ proxy: false });
     await DropPoint.initialize();
-    await crawlXMLFile(cookie, 0, 2527);
+    await crawlXMLFileFromFile(cookie, path.join(__dirname, 'crawler', 'sitemaps', 'sitemapsRO.txt'));
 };
 
 run().catch(err => console.log(err));
