@@ -1,0 +1,18 @@
+.datepicker-wrapper {
+    width: auto;
+}
+
+.react-datepicker {
+    width: auto;
+    /* set a fixed height for the datepicker */
+}
+
+
+.react-datepicker__tab-loop {
+    position: absolute;
+    top: 0;
+}
+
+.react-datepicker__triangle {
+    display: none !important;
+}
