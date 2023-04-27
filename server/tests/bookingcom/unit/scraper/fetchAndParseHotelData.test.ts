@@ -125,6 +125,7 @@ describe('booking.com fetchData and parseData', function () {
                 expect(hotelPricesData).to.be.an('array').that.is.empty;
             } else {
                 expect(hotelPricesData).to.be.an('array').that.is.not.empty;
+                expect(hotelPricesData[0].hotelId).to.be.eq(hotelData.id);
                 expect(hotelPricesData[0].pricePerNight).to.be.not.null;
                 expect(hotelPricesData[0].pricePerRoom).to.be.eq(hotelPricesData[0].pricePerNight);
                 expect(hotelPricesData[0].from).to.be.eq(this.userInput1.checkIn);
@@ -174,6 +175,7 @@ describe('booking.com fetchData and parseData', function () {
                 expect(hotelPricesData).to.be.an('array').that.is.empty;
             } else {
                 expect(hotelPricesData).to.be.an('array').that.is.not.empty;
+                expect(hotelPricesData[0].hotelId).to.be.eq(hotelData.id);
                 expect(hotelPricesData[0].pricePerNight).to.be.not.null;
                 expect(hotelPricesData[0].pricePerRoom).to.be.eq(hotelPricesData[0].pricePerNight);
                 expect(hotelPricesData[0].from).to.be.eq(this.userInput2.checkIn);
@@ -223,6 +225,7 @@ describe('booking.com fetchData and parseData', function () {
                 expect(hotelPricesData).to.be.an('array').that.is.empty;
             } else {
                 expect(hotelPricesData).to.be.an('array').that.is.not.empty;
+                expect(hotelPricesData[0].hotelId).to.be.eq(hotelData.id);
                 expect(hotelPricesData[0].pricePerNight).to.be.not.null;
                 expect(hotelPricesData[0].pricePerRoom).to.be.eq(hotelPricesData[0].pricePerNight);
                 expect(hotelPricesData[0].from).to.be.eq(this.userInput1.checkIn);
@@ -272,6 +275,7 @@ describe('booking.com fetchData and parseData', function () {
                 expect(hotelPricesData).to.be.an('array').that.is.empty;
             } else {
                 expect(hotelPricesData).to.be.an('array').that.is.not.empty;
+                expect(hotelPricesData[0].hotelId).to.be.eq(hotelData.id);
                 expect(hotelPricesData[0].pricePerNight).to.be.not.null;
                 expect(hotelPricesData[0].pricePerRoom).to.be.eq(hotelPricesData[0].pricePerNight);
                 expect(hotelPricesData[0].from).to.be.eq(this.userInput2.checkIn);
@@ -321,6 +325,7 @@ describe('booking.com fetchData and parseData', function () {
                 expect(hotelPricesData).to.be.an('array').that.is.empty;
             } else {
                 expect(hotelPricesData).to.be.an('array').that.is.not.empty;
+                expect(hotelPricesData[0].hotelId).to.be.eq(hotelData.id);
                 expect(hotelPricesData[0].pricePerNight).to.be.not.null;
                 expect(hotelPricesData[0].pricePerRoom).to.be.eq(hotelPricesData[0].pricePerNight);
                 expect(hotelPricesData[0].from).to.be.eq(this.userInput1.checkIn);

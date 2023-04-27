@@ -1,14 +1,24 @@
 import { AxiosRequestConfig } from 'axios';
 import { Hotel } from '../entities/Hotel';
-
+import { Session, SessionData } from 'express-session';
 
 export interface IUserInputForCrawling {
     checkIn: Date;
     checkOut: Date;
     rooms: IRoom[];
 }
-export interface IUserInput {
+
+export interface IDestination {
+    hotelName?: string;
     locationName: string;
+    country: string;
+    region?: string;
+    area?: string;
+    terms?: string[];
+}
+
+export interface IUserInput {
+    destination: IDestination;
     checkIn: Date;
     checkOut: Date;
     rooms: IRoom[];
@@ -32,6 +42,15 @@ export type BaseHeader = {
     'sec-ch-ua-platform'?: string;
     [key: string]: unknown;
 };
+
+export type MyContext = {
+    req: Request & {
+      session: Session & Partial<SessionData> & { userId?: number };
+    };
+    res: Response;
+    // redis: Redis;
+};
+
 
 export interface QueueItem<T, N> {
     callback: QueueCallback<N>;
@@ -197,3 +216,22 @@ export interface IHotelPrice extends IBaseEntity {
     description: Nullable<string | null>;
     rooms: IRoom[];
 }
+
+// export type HotelContent = {
+//     hotelName: string;
+//     description: Nullable<string>;
+//     scores: {
+//         [x: string]: { score?: number, maxScore?: number, reviews: Nullable<string> },
+//     };
+//     imageLinks: Nullable<string>[];
+//     wifi: Nullable<boolean>;
+//     kitchen: Nullable<boolean>;
+//     washer: Nullable<boolean>;
+//     bayView: Nullable<boolean>;
+//     mountainView: Nullable<boolean>;
+//     freeParking: Nullable<boolean>;
+//     balcony: Nullable<boolean>;
+//     bathroom: Nullable<boolean>;
+//     airConditioning: Nullable<boolean>;
+//     coffeMachine: Nullable<boolean>;
+// }

@@ -69,7 +69,7 @@ export const crawlXMLFileFromFile = async (
                     hotelsData.push(Hotel.create(hotelData as Hotel));
                 }
 
-                if (locationData) {
+                if (locationData && !existingHotel) {
                     hotelLocationsData.push(
                         Location.create(locationData as Location)
                     );

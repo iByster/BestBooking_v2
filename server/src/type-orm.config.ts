@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import { Hotel } from './entities/Hotel';
 import { HotelPrice } from './entities/HotelPrice';
 import { Location } from './entities/Location';
+import path from 'path';
 dotenv.config();
 
 const DropPoint = new DataSource({
@@ -19,6 +20,7 @@ const DropPoint = new DataSource({
     HotelPrice,
     Location,
   ],
+  migrations: [path.join(__dirname, './migrations/*')]
 });
 
 export default DropPoint;
