@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 /* Firefox */
-/* * {
+* {
   scrollbar-width: thin;
   scrollbar-color: var(--secondary) var(--primary);
 }
@@ -32,7 +32,7 @@
 	background-color: #55555596;
   width: 7px;
 
-} */
+}
 
 
 /* Chrome, Edge, and Safari */

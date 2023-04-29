@@ -5,6 +5,7 @@ import ChildAgeSelect from "../../components/Select/ChildAgeSelect";
 interface IProps {
   rooms: IRoom[];
   setRooms(rooms: IRoom[]): void;
+  errors: { message: string, roomKey: number, childAgeIndex: number }[];
 }
 
 export interface IRoom {
@@ -12,7 +13,7 @@ export interface IRoom {
   childAges: number[];
 }
 
-const GuestsPicker: React.FC<IProps> = ({ rooms, setRooms }) => {
+const GuestsPicker: React.FC<IProps> = ({ rooms, setRooms, errors }) => {
   const handleRoomAdultIncrement = (roomKey: number) => {
     const newRooms = [...rooms];
     newRooms[roomKey].adults++;
@@ -21,7 +22,7 @@ const GuestsPicker: React.FC<IProps> = ({ rooms, setRooms }) => {
 
   const handleRoomAdultDecriment = (roomKey: number) => {
     const newRooms = [...rooms];
-    if (newRooms[roomKey].adults > 0) {
+    if (newRooms[roomKey].adults > 1) {
       newRooms[roomKey].adults--;
       setRooms(newRooms);
     }
@@ -118,12 +119,13 @@ const GuestsPicker: React.FC<IProps> = ({ rooms, setRooms }) => {
     setRooms(newRooms);
   }
 
-  const childAgesRow = (childAges: number[], roomKey: number) => {
+  const childAgesRow = (childAges: number[], roomKey: number, errors: { message: string, roomKey: number, childAgeIndex: number }[]) => {
     return childAges.map((childAge: number, id: number) => {
       if (childAge !== -1) {
         return <ChildAgeSelect childId={id} age={childAge} handleAgeChange={handleAgeChange} roomKey={roomKey} key={id}/>;
       } else {
-        return <ChildAgeSelect childId={id} handleAgeChange={handleAgeChange} roomKey={roomKey} key={id} />;
+        const errorMessage = errors.find(error => error.childAgeIndex === id && error.roomKey === roomKey)?.message;
+        return <ChildAgeSelect childId={id} handleAgeChange={handleAgeChange} roomKey={roomKey} key={id}  error={errorMessage} />;
       }
     });
   };
@@ -140,7 +142,7 @@ const GuestsPicker: React.FC<IProps> = ({ rooms, setRooms }) => {
               {childrenRow(room.childAges, key)}
               {room.childAges &&
                 room.childAges.length > 0 &&
-                childAgesRow(room.childAges, key)}
+                childAgesRow(room.childAges, key, errors)}
 
               {rooms.length > 1 && (
                 <button

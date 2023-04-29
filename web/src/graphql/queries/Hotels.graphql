@@ -1,0 +1,152 @@
+# Write your query or mutation here
+query Hotels($userInput: UserInput!, $metadata: HotelMetadata!) {
+  getHotels(userInput: $userInput, metadata: $metadata) {
+    main {
+      hotelLocationData {
+        hotelId
+        locationName
+        lat
+        lon
+        country
+        area
+        address
+        region
+      }
+      hotelData {
+        hotelName
+        links {
+          field
+          value
+        }
+        description
+        scores {
+          field
+          value {
+            score
+            maxScore
+            reviews
+          }
+        }
+        imageLinks
+        wifi
+        kitchen
+        washer
+        bayView
+        mountainView
+        freeParking
+        balcony
+        bathroom
+        airConditioning
+        coffeMachine
+      }
+      hotelPricesData {
+        hotelPricesMain {
+          field
+          value {
+            pricePerNight
+            pricePerRoom
+            cleaningFee
+            currency
+            serviceFee
+            date
+            from
+            to
+            taxes
+            description
+            rooms
+          }
+        }
+        hotelPricesGraph {
+          field
+          value {
+            pricePerNight
+            pricePerRoom
+            cleaningFee
+            currency
+            serviceFee
+            date
+            from
+            to
+            taxes
+            description
+            rooms
+          }
+        }
+      }
+    },
+    secondary {
+      hotelLocationData {
+        hotelId
+        locationName
+        lat
+        lon
+        country
+        area
+        address
+        region
+      }
+      hotelData {
+        hotelName
+        links {
+          field
+          value
+        }
+        description
+        scores {
+          field
+          value {
+            score
+            maxScore
+            reviews
+          }
+        }
+        imageLinks
+        wifi
+        kitchen
+        washer
+        bayView
+        mountainView
+        freeParking
+        balcony
+        bathroom
+        airConditioning
+        coffeMachine
+      }
+      hotelPricesData {
+        hotelPricesMain {
+          field
+          value {
+            pricePerNight
+            pricePerRoom
+            cleaningFee
+            currency
+            serviceFee
+            date
+            from
+            to
+            taxes
+            description
+            rooms
+          }
+        }
+        hotelPricesGraph {
+          field
+          value {
+            pricePerNight
+            pricePerRoom
+            cleaningFee
+            currency
+            serviceFee
+            date
+            from
+            to
+            taxes
+            description
+            rooms
+          }
+        }
+      }
+    }
+    hasMore 
+  }
+}

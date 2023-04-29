@@ -3,7 +3,7 @@ import { ReactNode } from "react";
 interface IProps {
   type?: string;
   className?: string;
-  value: any;
+  value?: any;
   name: string;
   handleChange?(e: any): void;
   onFocus?(e: any): void;
@@ -11,21 +11,27 @@ interface IProps {
   icon?: ReactNode;
   readOnly?: boolean;
   ref?: React.RefObject<any>;
+  error?: string;
+  autoComplete?: 'off' | 'on';
 }
 
 const Input: React.FC<IProps> = ({
-    type = "text",
-    className = "",
-    placeholder = "",
-    name,
-    value,
-    icon,
-    handleChange,
-    onFocus,
-    readOnly,
-    ...inputProps
-  }) => {
-    return (
+  type = "text",
+  className = "",
+  placeholder = "",
+  name,
+  value,
+  icon,
+  handleChange,
+  onFocus,
+  readOnly,
+  error,
+  ref,
+  autoComplete,
+  ...inputProps
+}) => {
+  return (
+    <div className={"input-wrapper flex flex-col relative"}>
       <label className="relative block w-72">
         <input
           type={type}
@@ -36,6 +42,8 @@ const Input: React.FC<IProps> = ({
           onChange={handleChange}
           readOnly={readOnly}
           onFocus={onFocus}
+          autoComplete={autoComplete}
+          // ref={ref}
           {...inputProps}
         />
         {icon && (
@@ -44,7 +52,9 @@ const Input: React.FC<IProps> = ({
           </div>
         )}
       </label>
-    );
-  };
-  
-  export default Input;
+      <p className="absolute top-14 text-xs text-red-600 font-extrabold">{error}</p>
+    </div>
+  );
+};
+
+export default Input;

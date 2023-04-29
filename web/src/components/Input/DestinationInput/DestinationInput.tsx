@@ -14,6 +14,7 @@ interface IProps {
   name: string;
   handleChange(e: any): void;
   placeholder?: string;
+  error: string;
 }
 
 const DestinationInput: React.FC<IProps> = ({
@@ -21,6 +22,7 @@ const DestinationInput: React.FC<IProps> = ({
   className,
   placeholder,
   handleChange,
+  error,
 }) => {
   const { placePredictions, getPlacePredictions, isPlacePredictionsLoading } =
     useGoogle({
@@ -35,7 +37,7 @@ const DestinationInput: React.FC<IProps> = ({
   };
 
   const handleOptionSelect = (prediction: any) => {
-    handleChange(prediction.description);
+    handleChange(prediction);
     setPredictionsOpen(false);
   };
 
@@ -50,10 +52,12 @@ const DestinationInput: React.FC<IProps> = ({
           // ref={ref}
           className={`${className}`}
           name="destination"
-          value={value}
+          value={value.description}
           placeholder={placeholder || "Enter the destination name..."}
           icon={<BiSearchAlt size={25} color="gray" />}
           handleChange={onInputChange}
+          error={error}
+          autoComplete="off"
           // onFocus={handleInputFocus}
         />
       </div>

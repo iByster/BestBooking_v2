@@ -10,6 +10,7 @@ interface IProps {
     age: string | undefined
   ): void;
   roomKey: number;
+  error?: string;
 }
 
 const childAgesOptions = [
@@ -38,6 +39,7 @@ const ChildAgeSelect: React.FC<IProps> = ({
   age,
   handleAgeChange,
   roomKey,
+  error
 }) => {
   return (
     <div className="w-4">
@@ -59,6 +61,7 @@ const ChildAgeSelect: React.FC<IProps> = ({
           ))}
         </div>
       </Select>
+      <p className="text-xs text-red-600 font-extrabold w-52">{error}</p>
     </div>
   );
 };

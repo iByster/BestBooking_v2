@@ -13,6 +13,7 @@ interface IProps {
   placeholder?: string;
   handleChange(e: any): void;
   minDate: Date;
+  error: string;
 }
 
 const DateInput: React.FC<IProps> = ({
@@ -22,6 +23,7 @@ const DateInput: React.FC<IProps> = ({
   className,
   placeholder,
   minDate,
+  error,
 }) => {
   const InputRef = forwardRef(
     (
@@ -30,6 +32,7 @@ const DateInput: React.FC<IProps> = ({
     ) => (
       <div onClick={onClick} ref={ref}>
         <Input
+          error={error}
           placeholder={placeholder}
           value={value}
           name={name}

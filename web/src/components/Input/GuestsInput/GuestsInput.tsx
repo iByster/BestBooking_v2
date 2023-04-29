@@ -8,9 +8,10 @@ import { useRef, useState } from "react";
 interface IProps {
   rooms: IRoom[];
   setRooms(rooms: IRoom[]): void;
+  errors: { message: string, roomKey: number, childAgeIndex: number }[];
 }
 
-const GuestsInput: React.FC<IProps> = ({ rooms, setRooms }) => {
+const GuestsInput: React.FC<IProps> = ({ rooms, setRooms, errors }) => {
   const destructureRooms = (rooms: IRoom[]) => {
     const adults = rooms.reduce((a, b) => a + b.adults, 0);
     const children = rooms.reduce((a, b) => a + b.childAges.length, 0);
@@ -47,7 +48,7 @@ const GuestsInput: React.FC<IProps> = ({ rooms, setRooms }) => {
       }
       placement="bottom"
     >
-      <GuestsPicker rooms={rooms} setRooms={setRooms} />
+      <GuestsPicker rooms={rooms} setRooms={setRooms} errors={errors} />
     </Popper>
   );
 };
