@@ -10,6 +10,7 @@ import {
     Response,
     UserInput,
 } from './GraphqlTypes';
+import { findHotelPricesWithClosestDate } from '../utils/algorithms/findHotelPricesWithClosestDate';
 
 @Resolver()
 class HotelResolver {
@@ -25,21 +26,26 @@ class HotelResolver {
         @Arg('userInput') userInput: UserInput,
         @Arg('metadata') metadata: HotelMetadata
     ): Promise<Response> {
-        let hotels;
+        let hotels: Hotel[] = [];
         const response: Response = { secondary: [] };
-        const { destination } = userInput;
+        const { destination, checkIn, checkOut } = userInput;
+        const euroToRon = 4.94;
+
 
         if (destination.hotelName) {
-            hotels = await this.hotelService.getHotelsByName(
+            const hotelByHotelName = await this.hotelService.getHotelsByName(
                 destination,
                 metadata
             );
-        } else {
-            hotels = await this.hotelService.getHotelsByLocation(
-                destination,
-                metadata
-            );
+            hotels.push(...hotelByHotelName);
         }
+
+        const { hotels: hotelByLocation, hasMore } = await this.hotelService.getHotelsByLocation(
+            destination,
+            metadata
+        );
+         
+        hotels.push(...hotelByLocation);
 
         const hotelNames = hotels.map((hotel) => hotel.hotelName);
 
@@ -122,8 +128,22 @@ class HotelResolver {
                 // locations.splice(locationDataIndex, 1);
 
                 const hotelPricesFilter = hotelPrices.filter(
-                    (prices) => prices.hotelId === hotel.id
+                    (prices) => prices.hotelId === hotel.id && prices.pricePerNight !== null
                 );
+
+                if (hotelPricesFilter.length > 0 && hotelPricesFilter[0].currency === 'EUR') {
+                    hotelPricesFilter.forEach((hotelPrice, index) => {
+                        if (hotelPrice?.currency === 'EUR') {
+                            hotelPricesFilter[index].currency = 'RON';
+                            if (hotelPricesFilter[index].pricePerNight) {
+                                hotelPricesFilter[index].pricePerNight = hotelPricesFilter[index].pricePerNight! * euroToRon;
+                            }
+                            if (hotelPricesFilter[index].pricePerRoom) {
+                                hotelPricesFilter[index].pricePerRoom = hotelPricesFilter[index].pricePerRoom! * euroToRon;
+                            }
+                        }
+                    })
+                }
 
                 const hotelPricesData = [
                     {
@@ -132,21 +152,13 @@ class HotelResolver {
                     },
                 ];
 
-                if (
-                    destination.hotelName &&
-                    hotel.hotelName === destination.hotelName
-                ) {
-                    response.main = {
-                        hotelData,
-                        hotelLocationData,
-                        hotelPricesData,
-                    };
-                }
-
                 hotelResponse.push({
                     hotelData,
                     hotelLocationData,
-                    hotelPricesData,
+                    hotelPricesData: {
+                        hotelPricesGraph: hotelPricesData,
+                        hotelPricesMain: [],
+                    },
                 });
             } else {
                 const currentHotelLink = hotel.siteOrigin;
@@ -232,23 +244,35 @@ class HotelResolver {
                 }
 
                 const hotelPricesFilter = hotelPrices.filter(
-                    (prices) => prices.hotelId === hotel.id
+                    (prices) => prices.hotelId === hotel.id && prices.pricePerNight !== null
                 );
+
+                if (hotelPricesFilter.length > 0 && hotelPricesFilter[0].currency === 'EUR') {
+                    hotelPricesFilter.forEach((hotelPrice, index) => {
+                        if (hotelPrice?.currency === 'EUR') {
+                            hotelPricesFilter[index].currency = 'RON';
+                            if (hotelPricesFilter[index].pricePerNight) {
+                                hotelPricesFilter[index].pricePerNight = hotelPricesFilter[index].pricePerNight! * euroToRon;
+                            }
+                            if (hotelPricesFilter[index].pricePerRoom) {
+                                hotelPricesFilter[index].pricePerRoom = hotelPricesFilter[index].pricePerRoom! * euroToRon;
+                            }
+                        }
+                    })
+                }
 
                 const priceIndex = hotelResponse[
                     hotelIndex
-                ].hotelPricesData.findIndex(
+                ].hotelPricesData.hotelPricesGraph.findIndex(
                     (h) => h.field === currentHotelLink
                 );
 
                 if (priceIndex !== -1) {
-                    // console.log('here', hotelPricesFilter);
-                    hotelResponse[hotelIndex].hotelPricesData[
+                    hotelResponse[hotelIndex].hotelPricesData.hotelPricesGraph[
                         priceIndex
                     ].value.push(...hotelPricesFilter);
                 } else {
-                    // console.log('here2', hotelPricesFilter);
-                    hotelResponse[hotelIndex].hotelPricesData.push({
+                    hotelResponse[hotelIndex].hotelPricesData.hotelPricesGraph.push({
                         field: currentHotelLink,
                         value: [...hotelPricesFilter],
                     });
@@ -257,17 +281,30 @@ class HotelResolver {
         });
 
         for (let i = 0; i < hotelResponse.length; ++i) {
-            for (let j = 0; j < hotelResponse[i].hotelPricesData.length; ++j) {
-                hotelResponse[i].hotelPricesData[j].value.sort((a, b) => {
+            for (let j = 0; j < hotelResponse[i].hotelPricesData.hotelPricesGraph.length; ++j) {
+                hotelResponse[i].hotelPricesData.hotelPricesGraph[j].value.sort((a, b) => {
                     return (
                         new Date(a.from!).getTime() -
                         new Date(b.from!).getTime()
                     );
                 });
+
+                if (hotelResponse[i].hotelPricesData.hotelPricesGraph[j].value.length > 0) {
+                    hotelResponse[i].hotelPricesData.hotelPricesMain.push({
+                        field: hotelResponse[i].hotelPricesData.hotelPricesGraph[j].field,
+                        value: findHotelPricesWithClosestDate(hotelResponse[i].hotelPricesData.hotelPricesGraph[j].value, checkIn, checkOut)!,
+                    });
+                }
             }
         }
 
+        console.log(hotelResponse);
+        const mainHotelIndex = hotelResponse.findIndex((hotelRes) => hotelRes.hotelData.hotelName === destination.hotelName);
+
+        response.main = hotelResponse[mainHotelIndex];
+        hotelResponse.splice(mainHotelIndex, 1);
         response.secondary = hotelResponse;
+        response.hasMore = hasMore;
 
         return response;
     }

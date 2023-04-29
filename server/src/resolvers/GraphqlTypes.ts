@@ -46,6 +46,9 @@ export class Destination implements IDestination {
 
     @Field(() => [String], { nullable: true })
     terms?: string[];
+
+    @Field(() => String, { nullable: true })
+    description?: string;
 }
 
 @InputType()
@@ -129,13 +132,31 @@ export class HotelContent {
 }
 
 @ObjectType()
-class HotelPricesData {
+export class HotelPricesGraph {
   // Use index signatures to dynamically create fields for each key in the hotelPricesData object
   @Field()
   field!: string;
 
   @Field(() => [HotelPrice])
   value!: HotelPrice[];
+}
+
+@ObjectType()
+export class HotelPricesMain {
+    @Field()
+    field!: string;
+  
+    @Field(() => HotelPrice)
+    value!: HotelPrice;
+}
+
+@ObjectType()
+class HotelPricesData {
+    @Field(() => [HotelPricesMain])
+    hotelPricesMain!: HotelPricesMain[];
+
+    @Field(() => [HotelPricesGraph])
+    hotelPricesGraph!: HotelPricesGraph[];
 }
 
 
@@ -145,8 +166,8 @@ export class HotelsResponse {
     hotelData!: HotelContent;
     @Field(() => Location)
     hotelLocationData!: Location;
-    @Field(() => [HotelPricesData])
-    hotelPricesData!: HotelPricesData[];
+    @Field(() => HotelPricesData)
+    hotelPricesData!: HotelPricesData;
 }
 
 @ObjectType()

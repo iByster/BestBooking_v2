@@ -1,5 +1,5 @@
 import { Hotel } from '../entities/Hotel';
-import { HotelMetadata } from '../resolvers/HotelResolver';
+import { HotelMetadata } from '../resolvers/GraphqlTypes';
 import { IDestination } from '../types/types';
 
 class HotelService {
@@ -26,6 +26,7 @@ class HotelService {
             WHERE SIMILARITY(LOWER(h."hotelName"), LOWER($1)) > 0.5 
             AND SIMILARITY(LOWER(l.country), LOWER($2)) > 0.2
             AND (SIMILARITY(LOWER(l."locationName"), LOWER($3)) > 0.2 OR LOWER(l.address) LIKE LOWER('%' || $3 || '%'))
+            ORDER BY h.id
             LIMIT $4 OFFSET $5;
         `,
             [hotelName, country, locationName, limit, offset]
@@ -40,6 +41,9 @@ class HotelService {
     ) {
         const { country, locationName, terms } = destination;
         const { limit, offset } = metadata;
+
+        const realLimit = Math.min(50, limit);
+        const reaLimitPlusOne = realLimit + 1;
 
         let query = `
             SELECT h.* FROM public.hotel h
@@ -67,13 +71,16 @@ class HotelService {
             variables.push(term);
         });
 
-        variables.push(limit, offset)
+        variables.push(reaLimitPlusOne, offset)
         variableCount++; 
 
         query += `LIMIT $${variableCount - 1} OFFSET $${variableCount}`;
 
         const hotels = await Hotel.createQueryBuilder().connection.query(query, variables);
-        return hotels as Hotel[];
+        return {
+            hotels: hotels.slice(0, realLimit) as Hotel[],
+            hasMore: hotels.length === reaLimitPlusOne,
+        };
     }
 
     async enhanceHotelsFound(hotelNames: string[]) {
