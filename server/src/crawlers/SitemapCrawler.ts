@@ -4,7 +4,6 @@ import unzipFile from '../utils/files/unzip';
 import parseXmlString from '../utils/files/xmlToJson';
 
 class SitemapCrawler {
-    // downloads xml fxml file and unzip if is gz compression
     static async fetchXmlFile(xmlUrl: string): Promise<string> {
         const { data } = await axios({
             url: xmlUrl,
@@ -21,8 +20,6 @@ class SitemapCrawler {
     }
 
 
-    // todo maybe try to stream this process
-    // converts xml file in json and filter values
     static extractXmlUrlsFromSitemap(xml: string, include: string): string[] {
         const urls: string[] = [];
         const jsonXml = parseXmlString(xml);

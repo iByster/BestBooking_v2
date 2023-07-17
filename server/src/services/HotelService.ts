@@ -27,7 +27,7 @@ class HotelService {
             AND SIMILARITY(LOWER(l.country), LOWER($2)) > 0.2
             AND (SIMILARITY(LOWER(l."locationName"), LOWER($3)) > 0.2 OR LOWER(l.address) LIKE LOWER('%' || $3 || '%'))
             ORDER BY h.id
-            LIMIT $4 OFFSET $5;
+            LIMIT $4 OFFSET $5
         `,
             [hotelName, country, locationName, limit, offset]
         );
@@ -67,6 +67,10 @@ class HotelService {
                 query += 'OR ';
                 query += `(SIMILARITY(LOWER(l.region), LOWER($${variableCount})) > 0.1 OR SIMILARITY(LOWER(l.area), LOWER($${variableCount})) > 0.1 OR LOWER(l.address) LIKE LOWER('%' || $${variableCount} || '%'))`;
             }
+
+            if (terms.length === 1) {
+                query += ')';
+            }
             variableCount++;
             variables.push(term);
         });
@@ -74,7 +78,8 @@ class HotelService {
         variables.push(reaLimitPlusOne, offset)
         variableCount++; 
 
-        query += `LIMIT $${variableCount - 1} OFFSET $${variableCount}`;
+        query += ` ORDER BY h.id`
+        query += ` LIMIT $${variableCount - 1} OFFSET $${variableCount}`;
 
         const hotels = await Hotel.createQueryBuilder().connection.query(query, variables);
         return {

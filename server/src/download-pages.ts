@@ -67,7 +67,6 @@ const main = async () => {
     const xmlStream = new XmlStream(xmlFileReadStream);
 
     xmlStream.on('endElement: url', async (url: AirBnbXmlObjectType) => {
-        // console.log(url);
         const { loc } = url;
         const urlObject = new URL(loc);
 

@@ -183,8 +183,6 @@ export const scrapeHotelPricesByIdAndUserInput = async (id: string, userInput: I
         includeRotatingHeaders: true,
     });
 
-    console.log(requestOptions);
-
     const response = await requestScraper.scrapeHotel(requestOptions);
     fs.writeFileSync('./junk/responseTRIP.json', JSON.stringify(response));
     const parsedData = await parsePriceData(response, id, userInput);

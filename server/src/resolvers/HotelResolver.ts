@@ -11,6 +11,7 @@ import {
     UserInput,
 } from './GraphqlTypes';
 import { findHotelPricesWithClosestDate } from '../utils/algorithms/findHotelPricesWithClosestDate';
+import { LevenshteinDistance } from '../utils/algorithms/levenshtein';
 
 @Resolver()
 class HotelResolver {
@@ -39,6 +40,8 @@ class HotelResolver {
             );
             hotels.push(...hotelByHotelName);
         }
+
+
 
         const { hotels: hotelByLocation, hasMore } = await this.hotelService.getHotelsByLocation(
             destination,
@@ -88,7 +91,7 @@ class HotelResolver {
                 const hotelData: HotelContent = {
                     hotelName: hotel.hotelName,
                     description: hotel.description,
-                    imageLinks: [hotel.imageLink ? hotel.imageLink : null],
+                    imageLinks: [],
                     wifi: hotel.wifi,
                     airConditioning: hotel.airConditioning,
                     balcony: hotel.balcony,
@@ -120,6 +123,11 @@ class HotelResolver {
                         },
                     ],
                 };
+
+                if (hotel.imageLink) {
+                    hotelData.imageLinks.push(hotel.imageLink);
+                }
+
                 const locationDataIndex = locations.findIndex(
                     (location) => location.hotelId === hotel.id
                 );
@@ -298,11 +306,12 @@ class HotelResolver {
             }
         }
 
-        console.log(hotelResponse);
-        const mainHotelIndex = hotelResponse.findIndex((hotelRes) => hotelRes.hotelData.hotelName === destination.hotelName);
+        if (destination.hotelName) {
+            const mainHotelIndex = hotelResponse.findIndex((hotelRes) => LevenshteinDistance(hotelRes.hotelData.hotelName, destination.hotelName!) < 4);
+            response.main = hotelResponse[mainHotelIndex];
+            hotelResponse.splice(mainHotelIndex, 1);
+        }
 
-        response.main = hotelResponse[mainHotelIndex];
-        hotelResponse.splice(mainHotelIndex, 1);
         response.secondary = hotelResponse;
         response.hasMore = hasMore;
 

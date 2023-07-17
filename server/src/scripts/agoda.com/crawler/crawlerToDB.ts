@@ -173,7 +173,7 @@ export const crawlXMLFile = async (cookie: string, xmlFilesLastIndex: number = 0
         // define chunk limit
         const chunckMaxSize = 5;
         let chunkCount = 1;
-
+        
         let hotelsData: Hotel[] = [];
         let hotelLocationsData: Location[] = [];
         let hotelPricesDataArr: HotelPrice[] = [];
