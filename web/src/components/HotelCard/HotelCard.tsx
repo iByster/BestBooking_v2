@@ -9,24 +9,19 @@ import { MdLocationPin } from "react-icons/md";
 import { Slide } from "react-slideshow-image";
 import "react-slideshow-image/dist/styles.css";
 import {
-  AGODA_COM,
-  BOOKING_COM,
-  DIRECT_BOOKING_RO,
-  ESKY_RO,
-} from "../../constants";
-import {
-  destructureRooms,
   extractMainScore,
-  getLocationString,
-  parseDateToISO,
+  getLocationString
 } from "../../utils/parse/parseUtils";
 import Facilities from "../Facilities/Facilities";
 import HotelPrice from "../HotelPrice/HotelPrice";
 import Rating from "../Rating/Rating";
 import HotelPricesScatterChart from "../ScatterChart/HotelPricesScatterChart";
+import './HotelCard.css';
+
 
 interface IProps {
   hotel: any;
+  variant?: 'main';
 }
 
 function Icon({ id, open }: { id: number; open: number }) {
@@ -46,36 +41,7 @@ function Icon({ id, open }: { id: number; open: number }) {
   );
 }
 
-const CustomChartToolTip = ({ active, payload, label }: any) => {
-  if (active && payload && payload.length) {
-    const hotelPrice = payload[0].payload;
-
-    const { pricePerNight, description, from, to, rooms } = hotelPrice;
-
-    const roomsParse = JSON.parse(rooms);
-    const { adults, children } = destructureRooms(roomsParse);
-
-    return (
-      <div className="bg-gray-300 p-3 rounded-md">
-        <p className="font-extrabold">{description}</p>
-        <p>
-          Price per night:{" "}
-          <span className="font-extrabold">{pricePerNight.toFixed(2)}</span>
-        </p>
-        <p>From: {parseDateToISO(new Date(from))}</p>
-        <p>To: {parseDateToISO(new Date(to))}</p>
-        <p>
-          Guests: {adults} adults, {children} children, {roomsParse.length}{" "}
-          rooms
-        </p>
-      </div>
-    );
-  }
-
-  return null;
-};
-
-const HotelCard: React.FC<IProps> = ({ hotel }) => {
+const HotelCard: React.FC<IProps> = ({ hotel, variant }) => {
   const [openCard, setOpenCard] = useState(0);
   const { hotelLocationData, hotelData, hotelPricesData } = hotel;
   const { hotelName, imageLinks, scores, links, description } = hotelData;
@@ -92,26 +58,8 @@ const HotelCard: React.FC<IProps> = ({ hotel }) => {
     setOpenCard(openCard === value ? 0 : value);
   };
 
-  const getChartColorBySiteName = (site: string) => {
-    if (site.includes(BOOKING_COM)) {
-      return "#065d9e";
-    }
-
-    if (site.includes(ESKY_RO)) {
-      return "#149DAC";
-    }
-
-    if (site.includes(DIRECT_BOOKING_RO)) {
-      return "#82ca9d";
-    }
-
-    if (site.includes(AGODA_COM)) {
-      return "#b21717";
-    }
-  };
-
   return (
-    <div className="bg-gray-200 w-3/4 rounded-3xl drop-shadow-md">
+    <div className={`bg-gray-200 w-3/4 rounded-3xl drop-shadow-md ${variant === 'main' && 'animate-color-change'}`}>
       <Accordion
         className=""
         open={openCard === 1}

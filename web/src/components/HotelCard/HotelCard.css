@@ -1,0 +1,17 @@
+@keyframes color-change {
+    0% {
+        background-color: #EDF2F7;
+    }
+
+    50% {
+        background-color: #c2c6c9;
+    }
+
+    100% {
+        background-color: #EDF2F7;
+    }
+}
+
+.animate-color-change {
+    animation: color-change 2s ease-in-out;
+}

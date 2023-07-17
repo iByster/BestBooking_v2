@@ -32,47 +32,59 @@ const Hotels: React.FC<IProps> = ({}) => {
         {!data || !data.getHotels ? (
           <LoadingOffers />
         ) : (
-          data?.getHotels.secondary.map((hotel, i) => (
-            <>
-              <HotelCard hotel={hotel} key={hotel.hotelLocationData.hotelId} />
-
-              {i === data.getHotels.secondary.length - 1 && (
-                <Waypoint
-                  onEnter={() => {
-                    if (data.getHotels?.hasMore) {
-                      setOffset(offset + 20);
-                      return fetchMore({
-                        variables: {
-                          userInput: getPayloadFromQueryString(searchParams),
-                          metadata: {
-                            limit: 20,
-                            offset: offset,
-                          },
-                        },
-                        updateQuery: (pv: any, { fetchMoreResult }: any) => {
-                          if (!fetchMoreResult) {
-                            return pv;
-                          }
-
-                          return {
-                            getHotels: {
-                              __typename: "Response",
-                              main: [pv.getHotels.main],
-                              secondary: [
-                                ...pv.getHotels.secondary,
-                                ...fetchMoreResult.getHotels.secondary,
-                              ],
-                              hasMore: fetchMoreResult.getHotels.hasMore,
-                            },
-                          };
-                        },
-                      });
-                    }
-                  }}
+          <>
+            {data?.getHotels.main && (
+              <>
+                <HotelCard variant="main" hotel={data.getHotels.main} />
+                <div className="w-[85%] h-1 bg-gray-100"></div>
+              </>
+            )}
+            {data?.getHotels.secondary.map((hotel, i) => {
+              return (
+              <>
+                <HotelCard
+                  hotel={hotel}
+                  key={hotel.hotelLocationData.hotelId}
                 />
-              )}
-            </>
-          ))
+
+                {i === data.getHotels.secondary.length - 1 && (
+                  <Waypoint
+                    onEnter={() => {
+                      if (data.getHotels?.hasMore) {
+                        setOffset(offset + 20);
+                        return fetchMore({
+                          variables: {
+                            userInput: getPayloadFromQueryString(searchParams),
+                            metadata: {
+                              limit: 20,
+                              offset: offset,
+                            },
+                          },
+                          updateQuery: (pv: any, { fetchMoreResult }: any) => {
+                            if (!fetchMoreResult) {
+                              return pv;
+                            }
+
+                            return {
+                              getHotels: {
+                                __typename: "Response",
+                                main: [pv.getHotels.main],
+                                secondary: [
+                                  ...pv.getHotels.secondary,
+                                  ...fetchMoreResult.getHotels.secondary,
+                                ],
+                                hasMore: fetchMoreResult.getHotels.hasMore,
+                              },
+                            };
+                          },
+                        });
+                      }
+                    }}
+                  />
+                )}
+              </>
+            )})}
+          </>
         )}
         {networkStatus === 3 ? <LoadingOffers /> : null}
         {!data?.getHotels?.hasMore && (

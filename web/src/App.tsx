@@ -2,6 +2,7 @@ import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import Hotels from "./pages/Hotels/Hotels";
 import Home from "./pages/Home/Home";
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
+import NotFound from "./pages/NotFound";
 
 export function App() {
   const client = new ApolloClient({
@@ -19,6 +20,12 @@ export function App() {
       path: "/search",
       element: <Hotels />,
     },
+    {
+      path: "*",
+      element: <NotFound />,
+      
+    }
+    
   ]);
 
   return (

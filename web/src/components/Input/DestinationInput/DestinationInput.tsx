@@ -65,7 +65,7 @@ const DestinationInput: React.FC<IProps> = ({
         placePredictions &&
         placePredictions.length &&
         predictionsOpen && (
-          <ul className="bg-white p-2 rounded-md shadow-md absolute w-80">
+          <ul className="bg-white p-2 rounded-md shadow-md absolute w-80 z-50">
             <div>
               {placePredictions.map((prediction, key) => (
                 <li

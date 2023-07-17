@@ -19,6 +19,7 @@ export type Scalars = {
 export type Destination = {
   area?: InputMaybe<Scalars['String']>;
   country: Scalars['String'];
+  description?: InputMaybe<Scalars['String']>;
   hotelName?: InputMaybe<Scalars['String']>;
   locationName: Scalars['String'];
   region?: InputMaybe<Scalars['String']>;
